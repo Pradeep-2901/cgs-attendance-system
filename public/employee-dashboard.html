@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <style>body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; }</style>
+</head>
+<body>
+    <h1 id="welcomeMessage">Welcome!</h1>
+    <p>Employee Dashboard</p>
+    <a href="index.html">Logout</a>
+    <script>
+        const user = JSON.parse(localStorage.getItem('loggedInUser'));
+        if (user) document.getElementById('welcomeMessage').textContent = `Welcome, ${user.name}!`;
+    </script>
+</body>
+</html>

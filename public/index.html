@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CGS GREEN SUSTAINERGY - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <!-- Employee Login Form -->
+  <div class="form" id="employeeForm">
+    <h2>Employee</h2>
+    <!-- ADDED ID HERE -->
+    <input type="text" id="employeeUsername" placeholder="User name" />
+    <div class="password-wrapper">
+      <!-- ADDED ID HERE -->
+      <input type="password" id="employeePassword" placeholder="Password" />
+      <span class="toggle-eye" onclick="togglePassword('employeePassword', this)">👁️</span>
+    </div>
+    <!-- ADDED ERROR MESSAGE P-TAG HERE -->
+    <p class="error-message" id="employeeError"></p>
+    <!-- ADDED ID HERE -->
+    <button id="employeeLoginBtn">Login</button>
+  </div>
+
+  <!-- Admin Login Form -->
+  <div class="form hidden" id="adminForm">
+    <h2>Admin</h2>
+    <!-- ADDED ID HERE -->
+    <input type="text" id="adminUsername" placeholder="User name " />
+    <div class="password-wrapper">
+      <!-- ADDED ID HERE -->
+      <input type="password" id="adminPassword" placeholder="Password" />
+      <span class="toggle-eye" onclick="togglePassword('adminPassword', this)">👁️</span>
+    </div>
+     <!-- ADDED ERROR MESSAGE P-TAG HERE -->
+     <p class="error-message" id="adminError"></p>
+    <!-- ADDED ID HERE -->
+    <button id="adminLoginBtn">Login</button>
+  </div>
+
+  <!-- Toggle Button -->
+  <div class="admin-tab" id="toggleBtn" onclick="toggleForms()">Admin</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
