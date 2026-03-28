@@ -15,8 +15,19 @@
  * @returns {Promise<object>} - Response from server
  */
 async function apiCall(endpoint, method = 'GET', data = null) {
-    const apiBase = getApiUrl();
+    // HARDCODED for Netlify production - temporary override
+    // Always use the correct Render backend URL
+    let apiBase = 'https://cgs-attendance-system.onrender.com';
+    
+    // Override if running locally
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        apiBase = 'http://localhost:5000';
+    }
+    
     const url = apiBase + endpoint;
+    
+    console.log(`[API] Using backend: ${apiBase}`);
     
     const options = {
         method: method,
