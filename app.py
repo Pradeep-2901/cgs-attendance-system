@@ -702,6 +702,40 @@ def login():
             flash('Login failed. Please try again.', 'error')
             return render_template('index.html')
 
+@app.route('/api/check_session', methods=['GET', 'OPTIONS'])
+@csrf.exempt
+def check_session():
+    """Check if user has a valid session and return user data"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
+    try:
+        # Check if user has a valid session
+        user_id = session.get('user_id')
+        username = session.get('username')
+        role = session.get('role')
+        name = session.get('employee_name')
+        
+        if user_id and username and role:
+            return jsonify({
+                'authenticated': True,
+                'user_id': user_id,
+                'username': username,
+                'role': role,
+                'name': name or username
+            }), 200
+        else:
+            return jsonify({
+                'authenticated': False,
+                'message': 'No active session'
+            }), 401
+    except Exception as e:
+        print(f"Session check error: {e}")
+        return jsonify({
+            'authenticated': False,
+            'message': 'Session check failed'
+        }), 500
+
 @app.route('/logout', methods=['GET', 'POST'])
 @csrf.exempt
 def logout():

@@ -6,21 +6,21 @@
     <title>Employee Dashboard</title>
     <link rel="stylesheet" href="./static/css/bootstrap.min.css">
     <script>
+        // CRITICAL: Run BEFORE page renders
         const hostname = window.location.hostname;
         if (hostname.includes('netlify.app')) {
             window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
             localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
         }
         
-        // IMMEDIATELY set the user name from localStorage BEFORE page renders
+        // Load user data immediately
+        let currentUser = null;
         try {
             const user = localStorage.getItem('currentUser');
             if (!user) {
                 window.location.href = './index.html';
             } else {
-                const userData = JSON.parse(user);
-                // Store for later use
-                window.currentUserData = userData;
+                currentUser = JSON.parse(user);
             }
         } catch (e) {
             window.location.href = './index.html';
@@ -403,14 +403,18 @@
                 <a href="./mark_attendance.html">Mark Attendance</a>
                 <a href="./view_attendance.html">My Records</a>
                 <a href="./leave_management.html">My Leave</a>
-                <span id="user-display" style="color: white; font-weight: 600;"></span>
-                <a href="#" onclick="handleLogout(event)">Logout</a>
+                <span id="user-display" style="color: white; font-weight: 600;">
+                    <script>document.write(currentUser ? (currentUser.name || currentUser.username) : '');</script>
+                </span>
+                <a href="#" onclick="handleLogout(event);" style="cursor: pointer;">Logout</a>
             </div>
         </div>
         
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1 id="welcome-name">Welcome!</h1>
+            <h1>
+                Welcome, <script>document.write(currentUser ? (currentUser.name || currentUser.username) : 'User');</script>!
+            </h1>
             <p>Employee Dashboard</p>
             <p id="current-date"></p>
         </div>
@@ -457,108 +461,616 @@
         </div>
     </div>
     
-    <script src="./static/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Get user immediately from localStorage (synchronous)
-        function handleLogout(e) {
-            e.preventDefault();
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('API_URL');
-            window.location.href = './index.html';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CGS Attendance System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        // Set current date
-        document.getElementById('current-date').textContent = 
-            new Date().toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-        
-        async function loadDashboardData() {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-link:hover {
+            opacity: 0.8;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-left: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Container Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .alert-success {
+            background-color: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            font-size: 24px;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .card-content {
+            margin-top: 16px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f1f1;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff3838;
+        }
+
+        /* Attendance Display */
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .attendance-item:last-child {
+            border-bottom: none;
+        }
+
+        .attendance-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .attendance-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .attendance-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-checked-in {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-not-checked {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-links {
+                gap: 15px;
+                font-size: 12px;
+            }
+
+            .user-info {
+                border-left: none;
+                padding-left: 0;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <i class="fas fa-chart-line"></i> CGS Attendance
+            </div>
+            <div class="navbar-links">
+                <a href="./dashboard.html" class="navbar-link" title="Dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="./mark_attendance.html" class="navbar-link" title="Mark Attendance">
+                    <i class="fas fa-clock"></i> Mark Attendance
+                </a>
+                <a href="./view_attendance.html" class="navbar-link" title="View Records">
+                    <i class="fas fa-list"></i> Records
+                </a>
+                <div class="user-info">
+                    <span id="user-display">Loading...</span>
+                    <a href="#" onclick="handleLogout(event)" class="navbar-link" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p id="current-date">Loading date...</p>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alert alert-error" id="error-alert"></div>
+        <div class="alert alert-success" id="success-alert"></div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loading-state">
+            <div class="spinner"></div>
+            <p>Loading your dashboard...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard-content" style="display: none;">
+            <!-- Stats Grid -->
+            <div class="grid">
+                <!-- Today's Attendance Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Today's Attendance</div>
+                            <div class="card-subtitle" id="current-date-short">Today</div>
+                        </div>
+                    </div>
+                    <div class="card-content" id="attendance-box">
+                        <div style="padding: 20px; text-align: center; color: #999;">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comp-off Balance Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Comp-off Balance</div>
+                            <div class="card-subtitle">Remaining days</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stat-value" id="compoff-balance">0</div>
+                        <div class="stat-label">Days available</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-zap"></i>
+                        </div>
+                        <div>
+                            <div class="card-title">Quick Actions</div>
+                            <div class="card-subtitle">Common tasks</div>
+                        </div>
+                    </div>
+                    <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="./mark_attendance.html" class="btn btn-primary">
+                            <i class="fas fa-clock"></i> Mark Attendance
+                        </a>
+                        <a href="./leave_management.html" class="btn btn-secondary">
+                            <i class="fas fa-file-alt"></i> Manage Leaves
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = localStorage.getItem('API_URL') || 'http://localhost:5000';
+        let currentUser = null;
+
+        /**
+         * Check authentication and initialize page
+         */
+        async function checkAuth() {
             try {
-                const userData = window.currentUserData;
-                if (!userData) {
-                    window.location.href = './index.html';
-                    return;
-                }
-                
-                // Display employee name IMMEDIATELY from pre-loaded data
-                const nameDisplay = userData.name || userData.username;
-                document.getElementById('welcome-name').textContent = `Welcome, ${nameDisplay}!`;
-                document.getElementById('user-display').textContent = nameDisplay;
-                
-                let apiUrl = window.API_URL_OVERRIDE || localStorage.getItem('API_URL') || 'http://localhost:5000';
-                
-                const params = new URLSearchParams({
-                    user_id: userData.user_id,
-                    role: userData.role,
-                    username: userData.username,
-                    employee_name: userData.name
-                });
-                
-                const response = await fetch(`${apiUrl}/api/dashboard?${params}`, {
+                const response = await fetch(`${API_URL}/api/check_session`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
                         'Accept': 'application/json'
                     }
                 });
-                
-                if (response.status === 403) {
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        currentUser = {
+                            user_id: data.user_id,
+                            username: data.username,
+                            name: data.name,
+                            role: data.role
+                        };
+                        return true;
+                    }
+                }
+
+                // Not authenticated
+                window.location.href = './index.html';
+                return false;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = './index.html';
+                return false;
+            }
+        }
+
+        /**
+         * Load dashboard data
+         */
+        async function loadDashboard() {
+            try {
+                const params = new URLSearchParams({
+                    user_id: currentUser.user_id,
+                    role: currentUser.role,
+                    username: currentUser.username,
+                    employee_name: currentUser.name
+                });
+
+                const response = await fetch(`${API_URL}/api/dashboard?${params}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.status === 403 || response.status === 401) {
                     window.location.href = './index.html';
                     return;
                 }
-                
+
                 const data = await response.json();
-                
-                // Display attendance status
+
+                // Set current date
+                const today = new Date();
+                document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                document.getElementById('current-date-short').textContent = today.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                // Display user name
+                document.getElementById('user-display').textContent = `${currentUser.name || currentUser.username}`;
+
+                // Display attendance
                 let attendanceHtml = '';
                 if (data.today_attendance) {
                     const attend = data.today_attendance;
-                    const checkIn = attend.check_in_time || 'Not checked in';
-                    const checkOut = attend.check_out_time || 'Not checked out';
-                    
+                    const checkIn = attend.check_in_time && attend.check_in_time !== 'Not checked in' ? attend.check_in_time : 'Not checked in';
+                    const checkOut = attend.check_out_time && attend.check_out_time !== 'Not checked out' ? attend.check_out_time : 'Not checked out';
+
+                    const isCheckedIn = checkIn !== 'Not checked in';
+                    const isCheckedOut = checkOut !== 'Not checked out';
+
                     attendanceHtml = `
-                        <div class="status-info">
-                            <span>Check-in:</span>
-                            <span class="time-display">${checkIn}</span>
+                        <div class="attendance-item">
+                            <span class="attendance-label">Check-in:</span>
+                            <div>
+                                <span class="attendance-value">${checkIn}</span>
+                                <span class="attendance-status ${isCheckedIn ? 'status-checked-in' : 'status-not-checked'}">
+                                    ${isCheckedIn ? 'Checked In' : 'Pending'}
+                                </span>
+                            </div>
                         </div>
-                        <div class="status-info">
-                            <span>Check-out:</span>
-                            <span class="time-display">${checkOut}</span>
+                        <div class="attendance-item">
+                            <span class="attendance-label">Check-out:</span>
+                            <div>
+                                <span class="attendance-value">${checkOut}</span>
+                                <span class="attendance-status ${isCheckedOut ? 'status-checked-in' : 'status-not-checked'}">
+                                    ${isCheckedOut ? 'Completed' : 'Pending'}
+                                </span>
+                            </div>
                         </div>
                     `;
-                    
+
                     if (attend.check_in_address) {
                         attendanceHtml += `
-                            <div class="status-info">
-                                <span style="font-size: 0.9em; color: #666;">Location: ${attend.check_in_address.substring(0, 50)}...</span>
+                            <div class="attendance-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                                <span class="attendance-label">Location:</span>
+                                <span class="attendance-value" style="font-size: 12px; color: #666;">
+                                    ${attend.check_in_address.substring(0, 60)}...
+                                </span>
                             </div>
                         `;
                     }
                 } else {
-                    attendanceHtml = '<p style="text-align: center; color: #999; padding: 20px 0;">No attendance marked yet today.</p>';
+                    attendanceHtml = '<div style="padding: 20px; text-align: center; color: #999;">No attendance marked yet today.</div>';
                 }
-                
-                document.getElementById('attendance-content').innerHTML = attendanceHtml;
-                
+
+                document.getElementById('attendance-box').innerHTML = attendanceHtml;
+
                 // Display comp-off balance
                 if (data.compoff_balance !== undefined) {
                     document.getElementById('compoff-balance').textContent = data.compoff_balance;
                 }
-                
+
+                // Show dashboard content
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+
             } catch (error) {
                 console.error('Error loading dashboard:', error);
-                document.getElementById('attendance-content').innerHTML = '<p style="color: #dc3545; text-align: center; padding: 20px;">Error loading data. Please refresh.</p>';
+                document.getElementById('error-alert').textContent = 'Error loading dashboard data';
+                document.getElementById('error-alert').classList.add('show');
+                document.getElementById('loading-state').style.display = 'none';
             }
         }
-        
-        window.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData();
+
+        /**
+         * Logout handler
+         */
+        function handleLogout(e) {
+            e.preventDefault();
+            
+            fetch(`${API_URL}/logout`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).catch(e => console.log('Logout request sent'));
+
+            localStorage.removeItem('API_URL');
+            window.location.href = './index.html';
+        }
+
+        // Initialize page
+        window.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await checkAuth();
+            if (isAuth) {
+                await loadDashboard();
+            }
         });
     </script>
+</body>
+</html>
 </body>
 </html>
         const hostname = window.location.hostname;

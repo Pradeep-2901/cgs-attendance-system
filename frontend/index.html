@@ -3,404 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CGS GREEN SUSTAINERGY - Login</title>
-    <script>
-        const hostname = window.location.hostname;
-        if (hostname.includes('netlify.app')) {
-            window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
-            localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
-        }
-    </script>
+    <title>Login - CGS Attendance System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            background: linear-gradient(to right, #1d1e30, #2c2b6d);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            font-family: Arial, sans-serif;
         }
-        
-        .container {
-            position: relative;
+
+        .login-container {
             width: 100%;
-            max-width: 450px;
-            height: 550px;
+            max-width: 420px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-            background: url('./static/images/earth.jpg') no-repeat center/cover;
         }
-        
-        .form {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.35);
-            padding: 30px 20px;
-            transition: all 0.6s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transform: translateY(0%);
-            z-index: 10;
-        }
-        
-        .form.hidden {
-            transform: translateY(100%);
-            z-index: 1;
-        }
-        
-        .form h2 {
-            text-align: center;
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            margin-bottom: 30px;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-header h1 {
             font-size: 28px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            font-weight: 600;
+            margin-bottom: 8px;
         }
-        
-        .logo-text {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+
+        .login-header p {
+            font-size: 14px;
+            opacity: 0.9;
         }
-        
+
+        .login-body {
+            padding: 40px 30px;
+        }
+
         .form-group {
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
-            color: white;
-            margin-bottom: 6px;
             font-size: 13px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-            font-weight: 500;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
+
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.98);
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
             transition: all 0.3s;
         }
-        
+
         .form-group input:focus {
             outline: none;
-            background: white;
             border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
-        .password-wrapper {
+
+        .password-group {
             position: relative;
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
-        
-        .password-wrapper label {
+
+        .password-group label {
             display: block;
-            color: white;
-            margin-bottom: 6px;
             font-size: 13px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-            font-weight: 500;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .password-wrapper input {
+
+        .password-group input {
             width: 100%;
-            padding: 12px 40px 12px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.98);
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
+            transition: all 0.3s;
         }
-        
-        .password-wrapper input:focus {
+
+        .password-group input:focus {
             outline: none;
-            background: white;
             border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
-        .toggle-eye {
+
+        .toggle-password {
             position: absolute;
             right: 12px;
             top: 38px;
+            background: none;
+            border: none;
             cursor: pointer;
-            user-select: none;
             font-size: 18px;
+            color: #666;
+            transition: color 0.2s;
         }
-        
-        .form button {
+
+        .toggle-password:hover {
+            color: #333;
+        }
+
+        .role-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .role-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .role-option input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .role-option label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: normal;
+            color: #555;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background-color: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .submit-btn {
             width: 100%;
-            padding: 12px;
-            margin: 20px 0 10px 0;
+            padding: 13px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .form button:hover {
+
+        .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
-        
-        .form button:active {
+
+        .submit-btn:active {
             transform: translateY(0);
         }
-        
-        .form button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+
+        .submit-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
-        
-        .toggle-btn {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 2px solid white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            transition: all 0.3s;
-            z-index: 20;
-        }
-        
-        .toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.35);
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            color: white;
-        }
-        
+
         .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
+
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .login-header {
+                padding: 30px 20px;
+            }
+
+            .login-body {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Employee Login Form -->
-        <form class="form active" id="employeeForm" onsubmit="handleLogin(event, 'employee')">
-            <div class="logo-text">CGS GREEN SUSTAINERGY</div>
-            <h2>Employee Login</h2>
-            
-            <div id="employee-message"></div>
-            
-            <div class="form-group">
-                <label for="emp-username">Username</label>
-                <input type="text" id="emp-username" placeholder="Enter your username" required>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>CGS Attendance</h1>
+            <p>Employee Management System</p>
+        </div>
+        <div class="login-body">
+            <div class="alert alert-error" id="error-alert"></div>
+            <div class="alert alert-success" id="success-alert"></div>
+
+            <form id="login-form">
+                <!-- Role Selection -->
+                <div class="role-group">
+                    <div class="role-option">
+                        <input type="radio" id="role-employee" name="role" value="employee" checked>
+                        <label for="role-employee">Employee</label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" id="role-admin" name="role" value="admin">
+                        <label for="role-admin">Admin</label>
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+                </div>
+
+                <!-- Password -->
+                <div class="password-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn" id="submit-btn">
+                    Login
+                </button>
+            </form>
+
+            <div class="footer-text">
+                <p>Secure Employee Attendance & Leave Management</p>
             </div>
-            
-            <div class="password-wrapper">
-                <label for="emp-password">Password</label>
-                <input type="password" id="emp-password" placeholder="Enter your password" required>
-                <span class="toggle-eye" onclick="togglePassword('emp-password', this)">👁️</span>
-            </div>
-            
-            <button type="submit">Login</button>
-            
-            <div id="employee-loading" class="loading">
-                <div class="spinner"></div>
-                <p>Logging in...</p>
-            </div>
-        </form>
-        
-        <!-- Admin Login Form -->
-        <form class="form hidden" id="adminForm" onsubmit="handleLogin(event, 'admin')">
-            <div class="logo-text">CGS GREEN SUSTAINERGY</div>
-            <h2>Admin Access</h2>
-            
-            <div id="admin-message"></div>
-            
-            <div class="form-group">
-                <label for="admin-username">Username</label>
-                <input type="text" id="admin-username" placeholder="Enter admin username" required>
-            </div>
-            
-            <div class="password-wrapper">
-                <label for="admin-password">Password</label>
-                <input type="password" id="admin-password" placeholder="Enter admin password" required>
-                <span class="toggle-eye" onclick="togglePassword('admin-password', this)">👁️</span>
-            </div>
-            
-            <button type="submit">Login</button>
-            
-            <div id="admin-loading" class="loading">
-                <div class="spinner"></div>
-                <p>Logging in...</p>
-            </div>
-        </form>
-        
-        <button class="toggle-btn" onclick="toggleForms()">
-            <span id="toggle-text">Admin</span>
-        </button>
+        </div>
     </div>
-    
+
     <script>
-        let isEmployeeMode = true;
-        
-        function togglePassword(fieldId, element) {
-            const field = document.getElementById(fieldId);
-            if (field.type === 'password') {
-                field.type = 'text';
-                element.textContent = '🙈';
-            } else {
-                field.type = 'password';
-                element.textContent = '👁️';
+        // Determine API URL
+        const API_URL = (() => {
+            const hostname = window.location.hostname;
+            if (hostname.includes('netlify.app')) {
+                return 'https://cgs-attendance-system.onrender.com';
             }
-        }
-        
-        function toggleForms() {
-            isEmployeeMode = !isEmployeeMode;
-            const empForm = document.getElementById('employeeForm');
-            const adminForm = document.getElementById('adminForm');
-            const toggleBtn = document.getElementById('toggle-text');
+            if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+                return 'http://localhost:5000';
+            }
+            return 'https://cgs-attendance-system.onrender.com';
+        })();
+
+        /**
+         * Toggle password visibility
+         */
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password');
+            const btn = document.querySelector('.toggle-password');
             
-            if (isEmployeeMode) {
-                empForm.classList.remove('hidden');
-                adminForm.classList.add('hidden');
-                toggleBtn.textContent = 'Admin';
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
             } else {
-                empForm.classList.add('hidden');
-                adminForm.classList.remove('hidden');
-                toggleBtn.textContent = 'Employee';
+                input.type = 'password';
+                btn.textContent = '👁️';
             }
         }
-        
-        async function handleLogin(e, role) {
+
+        /**
+         * Show alert message
+         */
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById(`${type}-alert`);
+            alertDiv.textContent = message;
+            alertDiv.classList.add('show');
+            
+            if (type === 'error') {
+                setTimeout(() => alertDiv.classList.remove('show'), 5000);
+            }
+        }
+
+        /**
+         * Handle login form submission
+         */
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const username = role === 'employee' 
-                ? document.getElementById('emp-username').value 
-                : document.getElementById('admin-username').value;
-            const password = role === 'employee' 
-                ? document.getElementById('emp-password').value 
-                : document.getElementById('admin-password').value;
-            const messageDiv = document.getElementById(`${role}-message`);
-            const loadingDiv = document.getElementById(`${role}-loading`);
-            const button = event.target.querySelector('button');
-            
-            messageDiv.innerHTML = '';
-            loadingDiv.style.display = 'none';
-            
-            let apiUrl = window.API_URL_OVERRIDE || localStorage.getItem('API_URL') || 'http://localhost:5000';
-            
+
+            const submitBtn = document.getElementById('submit-btn');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            if (!username || !password) {
+                showAlert('Please enter both username and password', 'error');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<span class="spinner"></span>Logging in...';
+
             try {
-                loadingDiv.style.display = 'block';
-                button.disabled = true;
-                
-                const response = await fetch(`${apiUrl}/login`, {
+                const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    credentials: 'include',
                     body: JSON.stringify({
                         username: username,
                         password: password,
                         role: role
                     })
                 });
-                
-                loadingDiv.style.display = 'none';
-                button.disabled = false;
+
                 const data = await response.json();
-                
-                if (response.ok && data.status === 'success') {
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        user_id: data.user_id,
-                        username: data.username,
-                        name: data.employee_name,
-                        role: role
-                    }));
+
+                if (response.ok && data.authenticated) {
+                    showAlert(`Welcome ${data.name || username}!`, 'success');
                     
-                    localStorage.setItem('API_URL', apiUrl);
+                    // Store session data
+                    localStorage.setItem('API_URL', API_URL);
                     
-                    if (role === 'admin') {
-                        window.location.href = './admin_dashboard.html';
-                    } else {
-                        window.location.href = './dashboard.html';
-                    }
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (role === 'admin') {
+                            window.location.href = './admin_dashboard.html';
+                        } else {
+                            window.location.href = './dashboard.html';
+                        }
+                    }, 1000);
                 } else {
-                    messageDiv.innerHTML = `<div class="error-message">❌ ${data.message || 'Login failed. Please try again.'}</div>`;
+                    showAlert(data.message || 'Invalid credentials', 'error');
+                    submitBtn.classList.remove('loading');
+                    submitBtn.innerHTML = 'Login';
                 }
             } catch (error) {
-                loadingDiv.style.display = 'none';
-                button.disabled = false;
                 console.error('Login error:', error);
-                messageDiv.innerHTML = `<div class="error-message">❌ Connection error. Please check your internet.</div>`;
+                showAlert('Connection error. Please try again.', 'error');
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = 'Login';
             }
-        }
-        
-        window.addEventListener('DOMContentLoaded', function() {
-            const user = localStorage.getItem('currentUser');
-            if (user) {
-                const userData = JSON.parse(user);
-                if (userData.role === 'admin') {
-                    window.location.href = './admin_dashboard.html';
-                } else {
-                    window.location.href = './dashboard.html';
+        });
+
+        // Check if already logged in
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_URL}/api/check_session`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        // Already logged in, redirect
+                        if (data.role === 'admin') {
+                            window.location.href = './admin_dashboard.html';
+                        } else {
+                            window.location.href = './dashboard.html';
+                        }
+                    }
                 }
+            } catch (error) {
+                console.log('Session check failed, proceeding with login');
             }
         });
     </script>
