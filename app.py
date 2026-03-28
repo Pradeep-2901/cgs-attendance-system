@@ -21,13 +21,16 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key_if_not_set')
 
 # ✅ Enable CORS for frontend separation (Netlify + Render)
 CORS(app, 
-     resources={r"/api/*": {"origins": "*"}, r"/login": {"origins": "*"}, r"/logout": {"origins": "*"}},
-     supports_credentials=True)
+     resources={r"/*": {"origins": "*"}},  # Allow all endpoints
+     supports_credentials=True,  # CRITICAL: Allow cookies
+     allow_headers=['Content-Type', 'X-CSRFToken', 'X-Requested-With'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+)
 
 # ✅ Security Configuration
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# app.config['SESSION_COOKIE_SECURE'] = True  # ⚠️ Uncomment this line in production when using HTTPS
+app.config['SESSION_COOKIE_SECURE'] = True  # ✅ Enable for production HTTPS
 
 # ✅ Add CORS headers for AJAX requests
 @app.after_request

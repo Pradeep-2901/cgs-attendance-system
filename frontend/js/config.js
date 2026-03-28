@@ -63,10 +63,11 @@ function getCurrentUser() {
 
 // Store current user info
 function setCurrentUser(userData) {
+    console.log('[CONFIG] Storing user:', userData);
     localStorage.setItem('user_id', userData.user_id || '');
     localStorage.setItem('username', userData.username || '');
     localStorage.setItem('user_role', userData.role || 'employee');
-    localStorage.setItem('user_name', userData.name || data.username);
+    localStorage.setItem('user_name', userData.name || userData.username || '');
 }
 
 // Clear user session
