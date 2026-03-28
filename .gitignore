@@ -1,0 +1,28 @@
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Uploaded files (Keep the folder, ignore the content)
+static/attendance_photos/*
+!static/attendance_photos/.gitkeep
+
+# OS generated files
+.DS_Store
+Thumbs.db

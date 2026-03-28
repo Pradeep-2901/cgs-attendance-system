@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - CGS System</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .navbar-menu a, .navbar-menu button {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .navbar-menu a:hover, .navbar-menu button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .status-display {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .time-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .location-display {
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin: 10px;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        video {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        #cameraPreview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #000;
+        }
+        
+        #capturedPhoto {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>Mark Attendance</h1>
+        <div class="navbar-menu">
+            <a href="./dashboard.html">Dashboard</a>
+            <a href="./leave_management.html">My Leave</a>
+            <button data-action="logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Status Card -->
+        <div class="card">
+            <h2>Today's Status</h2>
+            <div id="statusMessage" class="loading">Loading your status...</div>
+        </div>
+
+        <!-- Check-in/Check-out Card -->
+        <div class="card">
+            <h2>Attendance Actions</h2>
+            
+            <div class="info-box">
+                ℹ️ To mark attendance, you need:
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>Location permission enabled</li>
+                    <li>Camera access (for photo capture)</li>
+                    <li>Valid GPS coordinates</li>
+                </ul>
+            </div>
+
+            <!-- Current Time Display -->
+            <div class="status-display">
+                <p style="color: #666; font-size: 14px;">Current Time</p>
+                <div class="time-display" id="currentTime">--:--:--</div>
+                <div class="location-display" id="locationStatus">📍 Location: --</div>
+            </div>
+
+            <!-- Location Input (for manual entry if GPS fails) -->
+            <div class="form-group" style="display: none;" id="manualLocationGroup">
+                <label>Manual Coordinates (if GPS fails)</label>
+                <input type="text" id="manualLatitude" placeholder="Latitude" />
+                <input type="text" id="manualLongitude" placeholder="Longitude" />
+            </div>
+
+            <!-- Camera Preview -->
+            <div id="cameraContainer" style="display: none;">
+                <canvas id="cameraPreview" style="display: none;"></canvas>
+                <video id="videoPreview" playsinline style="display: none;"></video>
+                <img id="capturedPhoto" alt="Captured Photo" />
+                <div class="button-group">
+                    <button class="btn btn-success" id="capturePhotoBtn" style="display: none;">📸 Capture Photo</button>
+                    <button class="btn btn-danger" id="resetPhotoBtn" style="display: none;">Reset Photo</button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn btn-success" id="checkInBtn" onclick="handleCheckIn()">✓ Check In</button>
+                <button class="btn btn-danger" id="checkOutBtn" onclick="handleCheckOut()" style="display: none;">✗ Check Out</button>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="resultMessage"></div>
+        </div>
+
+        <!-- History Card -->
+        <div class="card">
+            <h2>Recent Attendance</h2>
+            <div id="historyList" class="loading">Loading history...</div>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+        let currentLocation = null;
+        let capturedImageData = null;
+        let stream = null;
+
+        /**
+         * Initialize attendance page
+         */
+        async function initAttendance() {
+            if (!requireAuth(['employee'])) return;
+            
+            // Update time
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Load status
+            await loadAttendanceStatus();
+            
+            // Setup camera if available
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                setupCamera();
+            }
+        }
+
+        /**
+         * Update current time display
+         */
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('en-US', { hour12: false });
+        }
+
+        /**
+         * Setup camera
+         */
+        async function setupCamera() {
+            const videoPreview = document.getElementById('videoPreview');
+            const cameraContainer = document.getElementById('cameraContainer');
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' },
+                    audio: false
+                });
+                
+                videoPreview.srcObject = stream;
+                videoPreview.style.display = 'block';
+                cameraContainer.style.display = 'block';
+                
+                // Setup capture button
+                document.getElementById('capturePhotoBtn').style.display = 'block';
+                document.getElementById('capturePhotoBtn').onclick = capturePhoto;
+                document.getElementById('resetPhotoBtn').onclick = resetPhoto;
+                
+            } catch (error) {
+                console.warn('Camera access denied:', error);
+                showMessage('Camera access denied. You can still check in without a photo.', 'info');
+            }
+        }
+
+        /**
+         * Get current location
+         */
+        function getLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation not supported'));
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        document.getElementById('locationStatus').textContent = 
+                            `📍 Lat: ${currentLocation.latitude.toFixed(6)}, Lon: ${currentLocation.longitude.toFixed(6)}`;
+                        resolve(currentLocation);
+                    },
+                    (error) => {
+                        console.warn('Location access denied:', error);
+                        document.getElementById('manualLocationGroup').style.display = 'block';
+                        showMessage('Location access denied. Enter coordinates manually or allow location access.', 'warning');
+                        reject(error);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            });
+        }
+
+        /**
+         * Capture photo from camera
+         */
+        async function capturePhoto() {
+            const videoPreview = document.getElementById('videoPreview');
+            const canvas = document.getElementById('cameraPreview');
+            const ctx = canvas.getContext('2d');
+            
+            // Match canvas size to video
+            canvas.width = videoPreview.videoWidth;
+            canvas.height = videoPreview.videoHeight;
+            
+            // Draw video to canvas
+            ctx.drawImage(videoPreview, 0, 0);
+            
+            // Get image data
+            capturedImageData = canvas.toDataURL('image/jpeg');
+            
+            // Show captured photo
+            const photoImg = document.getElementById('capturedPhoto');
+            photoImg.src = capturedImageData;
+            photoImg.style.display = 'block';
+            
+            // Hide camera and show reset
+            videoPreview.style.display = 'none';
+            document.getElementById('capturePhotoBtn').style.display = 'none';
+            document.getElementById('resetPhotoBtn').style.display = 'block';
+            
+            showMessage('✓ Photo captured', 'success');
+        }
+
+        /**
+         * Reset photo capture
+         */
+        function resetPhoto() {
+            document.getElementById('videoPreview').style.display = 'block';
+            document.getElementById('capturedPhoto').style.display = 'none';
+            document.getElementById('capturePhotoBtn').style.display = 'block';
+            document.getElementById('resetPhotoBtn').style.display = 'none';
+            capturedImageData = null;
+        }
+
+        /**
+         * Handle check-in
+         */
+        async function handleCheckIn() {
+            const btn = document.getElementById('checkInBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            try {
+                // Get location
+                showMessage('Getting location...', 'info');
+                let location = currentLocation;
+                
+                if (!location) {
+                    try {
+                        location = await getLocation();
+                    } catch (e) {
+                        // Try manual location
+                        const lat = document.getElementById('manualLatitude').value;
+                        const lon = document.getElementById('manualLongitude').value;
+                        if (!lat || !lon) {
+                            throw new Error('Location required. Enable GPS or enter coordinates.');
+                        }
+                        location = { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+                    }
+                }
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('latitude', location.latitude);
+                formData.append('longitude', location.longitude);
+                
+                if (capturedImageData) {
+                    formData.append('image', capturedImageData);
+                }
+                
+                // Submit check-in
+                showMessage('Submitting check-in...', 'info');
+                const result = await uploadFile('/checkin', formData);
+                
+                if (result.status === 'success') {
+                    showMessage(result.message || '✓ Check-in successful!', 'success');
+                    document.getElementById('checkInBtn').style.display = 'none';
+                    document.getElementById('checkOutBtn').style.display = 'block';
+                    await loadAttendanceStatus();
+                } else {
+                    showMessage(result.message || 'Check-in failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✓ Check In';
+            }
+        }
+
+        /**
+         * Handle check-out
+         */
+        async function handleCheckOut() {
+            const btn = document.getElementById('checkOutBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            try {
+                // Get location
+                showMessage('Getting location...', 'info');
+                let location = currentLocation;
+                
+                if (!location) {
+                    try {
+                        location = await getLocation();
+                    } catch (e) {
+                        const lat = document.getElementById('manualLatitude').value;
+                        const lon = document.getElementById('manualLongitude').value;
+                        if (!lat || !lon) {
+                            throw new Error('Location required for check-out.');
+                        }
+                        location = { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+                    }
+                }
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('latitude', location.latitude);
+                formData.append('longitude', location.longitude);
+                
+                if (capturedImageData) {
+                    formData.append('image', capturedImageData);
+                }
+                
+                // Submit check-out
+                showMessage('Submitting check-out...', 'info');
+                const result = await uploadFile('/checkout', formData);
+                
+                if (result.status === 'success') {
+                    showMessage(result.message || '✓ Check-out successful!', 'success');
+                    document.getElementById('checkOutBtn').style.display = 'none';
+                    document.getElementById('checkInBtn').style.display = 'block';
+                    capturedImageData = null;
+                    resetPhoto();
+                    await loadAttendanceStatus();
+                } else {
+                    showMessage(result.message || 'Check-out failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✗ Check Out';
+            }
+        }
+
+        /**
+         * Load attendance status
+         */
+        async function loadAttendanceStatus() {
+            try {
+                const result = await apiCall('/dashboard?format=json', 'GET');
+                
+                if (result.status === 'success' && result.today_attendance) {
+                    const att = result.today_attendance;
+                    let html = '<div class="success">✓ Checked in today</div>';
+                    html += `<p><strong>Check-in:</strong> ${formatTime(att.check_in_time)}</p>`;
+                    
+                    if (att.check_out_time) {
+                        html += `<p><strong>Check-out:</strong> ${formatTime(att.check_out_time)}</p>`;
+                        document.getElementById('checkOutBtn').style.display = 'none';
+                        document.getElementById('checkInBtn').style.display = 'block';
+                    } else {
+                        document.getElementById('checkOutBtn').style.display = 'block';
+                        document.getElementById('checkInBtn').style.display = 'none';
+                    }
+                    
+                    document.getElementById('statusMessage').innerHTML = html;
+                } else {
+                    document.getElementById('statusMessage').innerHTML = 
+                        '<div class="info-box">No attendance marked today. Click "Check In" to start.</div>';
+                }
+            } catch (error) {
+                document.getElementById('statusMessage').innerHTML = 
+                    '<div class="error">Error loading status: ' + error.message + '</div>';
+            }
+        }
+
+        /**
+         * Format time
+         */
+        function formatTime(timeStr) {
+            if (!timeStr) return 'N/A';
+            try {
+                const time = new Date(timeStr);
+                return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        /**
+         * Show message
+         */
+        function showMessage(message, type = 'info') {
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initAttendance);
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

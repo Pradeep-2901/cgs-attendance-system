@@ -1,0 +1,30 @@
+[build]
+  # No build needed - this is a static site
+  command = "echo 'Static content deployed'"
+  publish = "frontend"
+
+# Redirect all routes to index.html for SPA-like behavior
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables for production
+[context.production]
+  environment = { API_URL = "https://cgs-backend.onrender.com" }
+
+# Cache control headers
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "max-age=0, must-revalidate"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "max-age=31536000, immutable"

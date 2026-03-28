@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Report - {{ employee.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .table-custom {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+        }
+
+        /* Calendar Styles */
+        .calendar-grid {display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+        .calendar-dow {text-align:center; font-weight:600; padding:6px 0; font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; color:#555;}
+        .calendar-day {min-height:70px; background:#f8f9fb; border-radius:8px; position:relative; padding:4px 6px; font-size:.85rem; box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+        .calendar-day.empty {background:transparent; box-shadow:none;}
+        .calendar-day .date-num {font-weight:600; font-size:.8rem;}
+        .calendar-day.present {background:#e3f8e9; border:1px solid #28a745;}
+        .calendar-day.on-leave {background:#fde2e1; border:1px solid #dc3545;}
+        .calendar-day.today {outline:2px solid #0d6efd; outline-offset:0;}
+        .calendar-day.small.status-label {display:block; margin-top:2px; font-size:.65rem; font-weight:600;}
+        .calendar-day.present small.status-label {color:#1e7e34;}
+        .calendar-day.on-leave small.status-label {color:#b21f2d;}
+        .calendar-day.comp-off {background:#e0f0ff; border:1px solid #0d6efd;}
+        .calendar-day.comp-off small.status-label {color:#0b5ed7;}
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-users-cog me-2"></i>Admin Panel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">Welcome, {{ username }}!</span>
+                <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{{ url_for('view_all_attendance') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to All Attendance
+            </a>
+        </div>
+
+        <!-- Employee Info Header -->
+        <div class="card card-custom">
+            <div class="card-body text-center">
+                <h2><i class="fas fa-user-circle text-primary"></i> {{ employee.name }}</h2>
+                <p class="text-muted mb-0">
+                    <strong>ID:</strong> {{ employee.user_id }} | 
+                    <strong>Username:</strong> {{ employee.username }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h3>{{ attendance_records|length }}</h3>
+                    <p>Total Records</p>
+                    <i class="fas fa-calendar-check fa-2x"></i>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h3>{{ chart_data.attendance|sum if chart_data.attendance else 0 }}</h3>
+                    <p>Days Present</p>
+                    <i class="fas fa-user-check fa-2x"></i>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <h3>{{ "%.1f"|format(chart_data.avg_checkin_time|sum / chart_data.avg_checkin_time|length if chart_data.avg_checkin_time else 9.0) }}:00</h3>
+                    <p>Avg Check-in</p>
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-custom">
+                    <div class="card-header bg-white">
+                        <h5><i class="fas fa-chart-bar text-success"></i> Monthly Attendance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-custom">
+                    <div class="card-header bg-white">
+                        <h5><i class="fas fa-chart-line text-info"></i> Average Check-in Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="checkinChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Attendance Records -->
+        <div class="card card-custom">
+            <div class="card-header bg-white">
+                <h5><i class="fas fa-history text-warning"></i> Recent Attendance Records (Last 30 days)</h5>
+            </div>
+            <div class="card-body">
+                {% if attendance_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-custom">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Location</th>
+                                <th>Working Hours</th>
+                                <th>Status</th>
+                                <th>Comp-Off Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendance_records %}
+                            <tr>
+                                <td>
+                                    <strong>{{ record.date | date_format('%Y-%m-%d') if record.date else 'N/A' }}</strong><br>
+                                    <small class="text-muted">{{ record.date | date_format('%A') if record.date else '' }}</small>
+                                </td>
+                                <td>
+                                    {% if record.check_in_time %}
+                                        <span class="badge bg-success">{{ record.check_in_time | time_format('%H:%M:%S') }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not checked in</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.check_out_time %}
+                                        <span class="badge bg-primary">{{ record.check_out_time | time_format('%H:%M:%S') }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Not checked out</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted" style="max-width: 250px; display: inline-block;">
+                                        {{ record.check_in_address or 'N/A' }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if record.check_in_time and record.check_out_time %}
+                                        {% set duration = (record.check_out_time - record.check_in_time).total_seconds() / 3600 %}
+                                        <strong>{{ "%.1f"|format(duration) }} hrs</strong>
+                                    {% else %}
+                                        <span class="text-muted">Incomplete</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.attendance_type == 'Comp-Off' %}
+                                        <span class="badge bg-info text-dark">Comp-Off</span>
+                                    {% elif record.check_in_time and record.check_out_time %}
+                                        <span class="badge bg-success">Complete</span>
+                                    {% elif record.check_in_time %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Absent</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.attendance_type == 'Comp-Off' %}
+                                        {% if record.compoff_credited %}
+                                            <span class="badge bg-secondary">Credited</span>
+                                        {% else %}
+                                            <form method="post" action="{{ url_for('credit_compoff', attendance_id=record.attendance_id) }}" onsubmit="return confirm('Credit this Comp-off day?')">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button class="btn btn-sm btn-outline-primary">Credit Leave</button>
+                                            </form>
+                                        {% endif %}
+                                    {% else %}-{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No attendance records found</h5>
+                    <p class="text-muted">This employee hasn't marked any attendance yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Attendance & Leave Calendar -->
+        <div class="card card-custom mt-4">
+            <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center">
+                <h5 class="mb-2 mb-sm-0"><i class="fas fa-calendar-alt text-primary"></i> Attendance & Leave Calendar</h5>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="calPrev" title="Previous Month"><i class="fas fa-chevron-left"></i></button>
+                    <select id="calMonth" class="form-select form-select-sm" style="width:auto;">
+                        {% for m in [
+                            'January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                            <option value="{{ loop.index0 }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="calYear" class="form-select form-select-sm" style="width:auto;"></select>
+                    <button class="btn btn-outline-secondary btn-sm" id="calNext" title="Next Month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-2 small">
+                    <span class="badge" style="background:#28a745">Present</span>
+                    <span class="badge" style="background:#dc3545">On Leave</span>
+                    <span class="badge" style="background:#0d6efd">Comp-Off</span>
+                    <span class="badge bg-secondary">No Data</span>
+                    <span class="badge bg-info text-dark">Today</span>
+                </div>
+                <div id="calendarHeader" class="h6 text-center mb-2"></div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <small id="calendarSummary" class="text-muted d-block mt-2"></small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Chart data from Flask
+        const chartData = JSON.parse('{{ chart_data|tojson|safe }}');
+        
+        // Attendance Chart
+        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(attendanceCtx, {
+            type: 'bar',
+            data: {
+                labels: chartData.months,
+                datasets: [{
+                    label: 'Days Present',
+                    data: chartData.attendance,
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Check-in Time Chart
+        const checkinCtx = document.getElementById('checkinChart').getContext('2d');
+        new Chart(checkinCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.months,
+                datasets: [{
+                    label: 'Average Check-in Hour',
+                    data: chartData.avg_checkin_time,
+                    backgroundColor: 'rgba(118, 75, 162, 0.2)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 8,
+                        max: 12,
+                        ticks: {
+                            stepSize: 0.5,
+                            callback: function(value) {
+                                return value + ':00';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Calendar Implementation (replaces previous heatmap logic)
+        (function(){
+            const userId = '{{ employee.user_id }}';
+            const monthSelect = document.getElementById('calMonth');
+            const yearSelect = document.getElementById('calYear');
+            const prevBtn = document.getElementById('calPrev');
+            const nextBtn = document.getElementById('calNext');
+            const grid = document.getElementById('calendarGrid');
+            const header = document.getElementById('calendarHeader');
+            const summary = document.getElementById('calendarSummary');
+
+            if(!grid) return;
+
+            // Populate year select (range: currentYear-2 .. currentYear+2)
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            for(let y=currentYear-2; y<=currentYear+2; y++){
+                const opt=document.createElement('option'); opt.value=y; opt.textContent=y; if(y===currentYear) opt.selected=true; yearSelect.appendChild(opt);
+            }
+            monthSelect.value = now.getMonth();
+
+            function pad(n){return n.toString().padStart(2,'0');}
+
+            async function renderCalendar(){
+                const month = parseInt(monthSelect.value,10); // 0-based
+                const year = parseInt(yearSelect.value,10);
+                header.textContent = monthSelect.options[month].text + ' ' + year;
+                grid.innerHTML = '<div class="text-center py-3 col-12">Loading...</div>';
+                summary.textContent='';
+
+                const first = new Date(year, month, 1);
+                const last = new Date(year, month+1, 0);
+                const startStr = year + '-' + pad(month+1) + '-01';
+                const endStr = year + '-' + pad(month+1) + '-' + pad(last.getDate());
+
+                let data=[];
+                try{
+                    const res = await fetch(`/admin/employee_attendance_data/${userId}?start_date=${startStr}&end_date=${endStr}`);
+                    if(res.ok){ data = await res.json(); } else { grid.innerHTML='<p class="text-danger">Failed to load.</p>'; return; }
+                }catch(e){ console.error(e); grid.innerHTML='<p class="text-danger">Network error.</p>'; return; }
+
+                // Map data by date
+                const map = {}; let present=0,onLeave=0;
+                data.forEach(r=>{ map[r.date]=r; if(r.status==='present') present++; else if(r.status==='on_leave') onLeave++; });
+
+                // Build header row (dow labels)
+                grid.innerHTML='';
+                const dows=['Su','Mo','Tu','We','Th','Fr','Sa'];
+                dows.forEach(d=>{ const el=document.createElement('div'); el.className='calendar-dow'; el.textContent=d; grid.appendChild(el); });
+
+                // Leading empty cells
+                for(let i=0;i<first.getDay();i++){ const empty=document.createElement('div'); empty.className='calendar-day empty'; grid.appendChild(empty); }
+
+                // Day cells
+                for(let day=1; day<=last.getDate(); day++){
+                    const dateObj = new Date(year, month, day);
+                    const dateStr = year + '-' + pad(month+1) + '-' + pad(day);
+                    const rec = map[dateStr];
+                    const cell = document.createElement('div');
+                    cell.className='calendar-day';
+                    if(dateObj.toDateString() === now.toDateString()) cell.classList.add('today');
+                    const num = document.createElement('div'); num.className='date-num'; num.textContent=day; cell.appendChild(num);
+                    if(rec){
+                        if(rec.status==='present'){ cell.classList.add('present'); const s=document.createElement('small'); s.className='status-label'; s.textContent='Present'; cell.appendChild(s); }
+                        else if(rec.status==='on_leave'){ cell.classList.add('on-leave'); const s=document.createElement('small'); s.className='status-label'; s.textContent= rec.leave_type? rec.leave_type : 'Leave'; cell.appendChild(s); }
+                        else if(rec.status==='comp_off'){ cell.classList.add('comp-off'); const s=document.createElement('small'); s.className='status-label'; s.textContent='Comp-Off'; cell.appendChild(s); }
+                        cell.title = dateStr + ' - ' + (rec.status==='present'?'Present':'Leave'+ (rec.leave_type?(' ('+rec.leave_type+')'):'') );
+                    } else {
+                        cell.title = dateStr + ' - No Data';
+                    }
+                    grid.appendChild(cell);
+                }
+
+                summary.textContent = `Present: ${present} | On Leave: ${onLeave} | Total Days: ${last.getDate()}`;
+            }
+
+            prevBtn.addEventListener('click', ()=>{ let m=parseInt(monthSelect.value,10)-1; let y=parseInt(yearSelect.value,10); if(m<0){m=11; y--; yearSelect.value=y;} monthSelect.value=m; renderCalendar(); });
+            nextBtn.addEventListener('click', ()=>{ let m=parseInt(monthSelect.value,10)+1; let y=parseInt(yearSelect.value,10); if(m>11){m=0; y++; yearSelect.value=y;} monthSelect.value=m; renderCalendar(); });
+            monthSelect.addEventListener('change', renderCalendar);
+            yearSelect.addEventListener('change', renderCalendar);
+
+            renderCalendar();
+        })();
+    </script>
+</body>
+</html>

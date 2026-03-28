@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Attendance - CGS System</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .navbar-menu a, .navbar-menu button {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .navbar-menu a:hover, .navbar-menu button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filters input, .filters select, .filters button {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .filters button {
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s;
+        }
+        
+        .filters button:hover {
+            background: #5568d3;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-present {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-half-day {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .pagination button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .summary-card .label {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>View Attendance</h1>
+        <div class="navbar-menu">
+            <a href="./dashboard.html">Dashboard</a>
+            <a href="./mark_attendance.html">Mark Attendance</a>
+            <a href="./leave_management.html">My Leave</a>
+            <button data-action="logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Filters -->
+        <div class="card">
+            <h2>Attendance Records</h2>
+            
+            <div class="filters">
+                <input type="month" id="monthFilter" placeholder="Month" />
+                <select id="typeFilter">
+                    <option value="">-- All Types --</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Comp-Off">Comp-Off</option>
+                    <option value="Work From Home">Work From Home</option>
+                </select>
+                <button onclick="applyFilters()">🔍 Filter</button>
+                <button onclick="resetFilters()" style="background: #6c757d;">Reset</button>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary" id="summary" style="display: none;">
+                <div class="summary-card">
+                    <div class="label">Present Days</div>
+                    <div class="value" id="presentCount">-</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Absent Days</div>
+                    <div class="value" id="absentCount">-</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Half Days</div>
+                    <div class="value" id="halfDayCount">-</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Work Hours</div>
+                    <div class="value" id="workHours">-</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div id="attendanceTable" class="loading">Loading attendance records...</div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+        let allRecords = [];
+        let filteredRecords = [];
+        let currentPage = 1;
+        const recordsPerPage = 10;
+
+        /**
+         * Initialize view attendance page
+         */
+        async function initViewAttendance() {
+            if (!requireAuth(['employee'])) return;
+            
+            // Set current month as default
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('monthFilter').value = `${year}-${month}`;
+            
+            await loadAttendanceRecords();
+        }
+
+        /**
+         * Load attendance records
+         */
+        async function loadAttendanceRecords() {
+            try {
+                const result = await fetchData('/view_attendance?format=json');
+                
+                if (result.status === 'success' && result.records) {
+                    allRecords = result.records;
+                    filteredRecords = allRecords;
+                    currentPage = 1;
+                    displayRecords();
+                    updateSummary();
+                } else {
+                    showError('Failed to load records: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                showError('Error loading records: ' + error.message);
+            }
+        }
+
+        /**
+         * Display records with pagination
+         */
+        function displayRecords() {
+            const table = document.getElementById('attendanceTable');
+            
+            if (filteredRecords.length === 0) {
+                table.innerHTML = '<div class="loading">No records found</div>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+            const start = (currentPage - 1) * recordsPerPage;
+            const end = Math.min(start + recordsPerPage, filteredRecords.length);
+            const pageRecords = filteredRecords.slice(start, end);
+            
+            // Build table
+            let html = '<table>';
+            html += `<thead><tr>
+                <th>Date</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>Status</th>
+            </tr></thead><tbody>`;
+            
+            pageRecords.forEach(record => {
+                const statusClass = record.check_out_time ? 'status-present' : 'status-half-day';
+                const status = record.check_out_time ? 'Present' : 'Incomplete';
+                const duration = calculateDuration(record.check_in_time, record.check_out_time);
+                
+                html += `<tr>
+                    <td>${formatDate(record.date)}</td>
+                    <td>${formatTime(record.check_in_time)}</td>
+                    <td>${formatTime(record.check_out_time) || '-'}</td>
+                    <td>${record.attendance_type || 'Regular'}</td>
+                    <td>${duration}</td>
+                    <td><span class="status-badge ${statusClass}">${status}</span></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            table.innerHTML = html;
+            
+            // Build pagination
+            let pagHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                pagHTML += `<button class="${activeClass}" onclick="goToPage(${i})">${i}</button>`;
+            }
+            document.getElementById('pagination').innerHTML = pagHTML;
+        }
+
+        /**
+         * Update summary
+         */
+        function updateSummary() {
+            const summary = document.getElementById('summary');
+            summary.style.display = 'grid';
+            
+            let presentCount = 0;
+            let absentCount = 0;
+            let halfDayCount = 0;
+            let totalHours = 0;
+            
+            filteredRecords.forEach(record => {
+                if (record.check_out_time) {
+                    presentCount++;
+                    totalHours += parseFloat(record.work_hours || 9);
+                } else {
+                    if (record.check_in_time) {
+                        halfDayCount++;
+                    } else {
+                        absentCount++;
+                    }
+                }
+            });
+            
+            document.getElementById('presentCount').textContent = presentCount;
+            document.getElementById('absentCount').textContent = absentCount;
+            document.getElementById('halfDayCount').textContent = halfDayCount;
+            document.getElementById('workHours').textContent = totalHours.toFixed(1) + 'h';
+        }
+
+        /**
+         * Apply filters
+         */
+        function applyFilters() {
+            const monthFilter = document.getElementById('monthFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            
+            filteredRecords = allRecords.filter(record => {
+                let match = true;
+                
+                if (monthFilter) {
+                    const [year, month] = monthFilter.split('-');
+                    const recordDate = new Date(record.date);
+                    const recordYear = recordDate.getFullYear();
+                    const recordMonth = String(recordDate.getMonth() + 1).padStart(2, '0');
+                    match = match && (recordYear === parseInt(year) && recordMonth === month);
+                }
+                
+                if (typeFilter) {
+                    match = match && (record.attendance_type === typeFilter);
+                }
+                
+                return match;
+            });
+            
+            currentPage = 1;
+            displayRecords();
+            updateSummary();
+        }
+
+        /**
+         * Reset filters
+         */
+        function resetFilters() {
+            document.getElementById('monthFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            filteredRecords = allRecords;
+            currentPage = 1;
+            displayRecords();
+            updateSummary();
+        }
+
+        /**
+         * Go to page
+         */
+        function goToPage(page) {
+            currentPage = page;
+            displayRecords();
+            window.scrollTo(0, 0);
+        }
+
+        /**
+         * Calculate duration
+         */
+        function calculateDuration(checkIn, checkOut) {
+            if (!checkIn || !checkOut) return '--';
+            try {
+                const start = new Date(checkIn);
+                const end = new Date(checkOut);
+                const diff = (end - start) / (1000 * 60 * 60); // hours
+                return diff.toFixed(1) + 'h';
+            } catch (e) {
+                return '--';
+            }
+        }
+
+        /**
+         * Format date
+         */
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        /**
+         * Format time
+         */
+        function formatTime(timeStr) {
+            if (!timeStr) return '-';
+            try {
+                const time = new Date(timeStr);
+                return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        /**
+         * Show error
+         */
+        function showError(message) {
+            document.getElementById('attendanceTable').innerHTML = 
+                '<div class="error">' + message + '</div>';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initViewAttendance);
+    </script>
+</body>
+</html>

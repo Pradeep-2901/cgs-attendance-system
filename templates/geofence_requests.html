@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Geofence Requests</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body { background:#f4f6f9; }
+        .container-geo {max-width:1100px;margin:40px auto;background:#fff;padding:25px;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,0.08);}    
+        table {width:100%;border-collapse:collapse;margin-top:15px;}
+        th, td {padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;text-align:left;}
+        th {background:#fafafa;}
+        .badge {display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;}
+        .badge-pending {background:#ffe9b3;color:#8a6d00;}
+        .badge-approved {background:#c8f5d0;color:#1d6b2f;}
+        .badge-rejected {background:#fdd1d1;color:#7d1d1d;}
+        .actions form {display:inline-block;margin:0 4px;}
+        .btn-mini {padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:12px;}
+        .approve {background:#28a745;color:#fff;}
+        .reject {background:#dc3545;color:#fff;}
+        .back-link {display:inline-block;margin-top:15px;text-decoration:none;color:#555;}
+    </style>
+</head>
+<body>
+    <div class="container-geo">
+        <h2>🛰️ Geofence Requests</h2>
+        <p><a href="{{ url_for('admin_dashboard') }}" class="back-link">&larr; Back to Admin Dashboard</a></p>
+        {% if requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee</th>
+                    <th>Username</th>
+                    <th>Requested Lat</th>
+                    <th>Requested Lon</th>
+                    <th>Requested At</th>
+                    <th>Status</th>
+                    <th>Map</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in requests %}
+                <tr>
+                    <td>{{ r.request_id }}</td>
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.username }}</td>
+                    <td>{{ '%.6f'|format(r.requested_lat) }}</td>
+                    <td>{{ '%.6f'|format(r.requested_lon) }}</td>
+                    <td>{{ r.request_date }}</td>
+                    <td>
+                        <span class="badge badge-{{ r.status }}">{{ r.status|capitalize }}</span>
+                    </td>
+                    <td><a target="_blank" href="https://www.openstreetmap.org/?mlat={{ r.requested_lat }}&mlon={{ r.requested_lon }}#map=17/{{ r.requested_lat }}/{{ r.requested_lon }}">Map</a></td>
+                    <td class="actions">
+                        {% if r.status == 'pending' %}
+                        <form method="POST" action="{{ url_for('admin_review_geofence', request_id=r.request_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="decision" value="approve" />
+                            <button class="btn-mini approve" onclick="return confirm('Approve this geofence?')">Approve</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin_review_geofence', request_id=r.request_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="decision" value="reject" />
+                            <button class="btn-mini reject" onclick="return confirm('Reject this geofence?')">Reject</button>
+                        </form>
+                        {% else %}
+                            <em>N/A</em>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No geofence requests yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

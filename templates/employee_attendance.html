@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Employee Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .attendance-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        #video {
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="attendance-container">
+        <h2>Welcome, {{ employee_name }}!</h2>
+        <h3>Mark Your Attendance</h3>
+        
+        <video id="video" autoplay></video>
+        <br>
+        
+        <button class="btn" onclick="startCamera()">Start Camera</button>
+        <button class="btn" onclick="captureAndSubmit()">Capture & Submit Attendance</button>
+        <button class="btn" onclick="window.location.href='/logout'">Logout</button>
+        
+        <div id="status"></div>
+        <div id="location-info"></div>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let currentLatitude = null;
+        let currentLongitude = null;
+        
+        // Get location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    currentLatitude = position.coords.latitude;
+                    currentLongitude = position.coords.longitude;
+                    document.getElementById('location-info').innerHTML = 
+                        `<div class="status info">Location: ${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)}</div>`;
+                    console.log('Location obtained:', currentLatitude, currentLongitude);
+                }, function(error) {
+                    console.error('Geolocation error:', error);
+                    document.getElementById('location-info').innerHTML = 
+                        '<div class="status error">Location access denied. Attendance will be marked without location.</div>';
+                });
+            } else {
+                document.getElementById('location-info').innerHTML = 
+                    '<div class="status error">Geolocation not supported by this browser.</div>';
+            }
+        }
+        
+        // Start camera
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    document.getElementById('status').innerHTML = 
+                        '<div class="status success">Camera started successfully!</div>';
+                    console.log('Camera started');
+                })
+                .catch(function(error) {
+                    console.error('Camera error:', error);
+                    document.getElementById('status').innerHTML = 
+                        '<div class="status error">Camera access denied. Please allow camera access.</div>';
+                });
+        }
+        
+        // Capture photo and submit attendance
+        function captureAndSubmit() {
+            if (!video.srcObject) {
+                document.getElementById('status').innerHTML = 
+                    '<div class="status error">Please start camera first!</div>';
+                return;
+            }
+            
+            // Create canvas to capture image
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            
+            // Convert to base64
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            console.log('Captured image data length:', imageData.length);
+            console.log('Image data preview:', imageData.substring(0, 50));
+            
+            // Show loading status
+            document.getElementById('status').innerHTML = 
+                '<div class="status info">Submitting attendance...</div>';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('image', imageData);
+            formData.append('latitude', currentLatitude);
+            formData.append('longitude', currentLongitude);
+            
+            console.log('Sending data:', {
+                imageLength: imageData.length,
+                latitude: currentLatitude,
+                longitude: currentLongitude
+            });
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            formData.append('csrf_token', csrfToken);
+
+            // Submit attendance
+            fetch('/submit_attendance', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.status === 'success') {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status success">${data.message}<br>Image saved: ${data.image_saved ? 'Yes' : 'No'}</div>`;
+                    if (data.filename) {
+                        console.log('Image saved as:', data.filename);
+                    }
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status error">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                document.getElementById('status').innerHTML = 
+                    '<div class="status error">Network error occurred. Please try again.</div>';
+            });
+        }
+        
+        // Initialize when page loads
+        window.onload = function() {
+            getLocation();
+            // Auto-start camera
+            setTimeout(startCamera, 1000);
+        };
+    </script>
+</body>
+</html>

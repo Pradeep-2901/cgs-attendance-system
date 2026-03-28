@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Remote Work - CGS Employee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .remote-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .remote-card:hover {
+            transform: translateY(-3px);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(142, 45, 226, 0.3);
+            color: white;
+        }
+        .request-item {
+            border-left: 4px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            margin-bottom: 15px;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-user"></i> CGS Employee
+            </a>
+            <div class="ms-auto">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Request Form -->
+                <div class="card remote-card mb-4">
+                    <div class="card-header p-4">
+                        <h4 class="mb-0"><i class="fas fa-laptop-house me-2"></i>Request Remote Work</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form action="{{ url_for('submit_remote_request') }}" method="POST" id="remoteForm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Start Date</label>
+                                    <input type="date" name="start_date" class="form-control" required value="{{ today_date }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">End Date</label>
+                                    <input type="date" name="end_date" class="form-control" required value="{{ today_date }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Work Address</label>
+                                <textarea name="address" id="address" class="form-control" rows="3" placeholder="Enter your full address here..." required></textarea>
+                                <div class="form-text">Please describe where you will be working from.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Location Coordinates</label>
+                                <div class="input-group mb-2">
+                                    <input type="text" id="location_display" class="form-control" placeholder="Coordinates will appear here..." readonly>
+                                    <button type="button" class="btn btn-outline-primary" onclick="getLocation()">
+                                        <i class="fas fa-map-marker-alt me-1"></i> Get Location
+                                    </button>
+                                </div>
+                                <input type="hidden" name="lat" id="lat" required>
+                                <input type="hidden" name="lon" id="lon" required>
+                                <div id="location-status" class="form-text text-muted">Click 'Get Location' to capture your current GPS coordinates.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Reason</label>
+                                <textarea name="reason" class="form-control" rows="2" placeholder="Why are you working remotely?" required></textarea>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-custom btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Request History -->
+                <div class="card remote-card">
+                    <div class="card-header p-4 bg-white text-dark border-bottom">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>My Remote Requests</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if requests %}
+                            {% for req in requests %}
+                            <div class="request-item p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">{{ req.start_date }} to {{ req.end_date }}</h6>
+                                        <p class="mb-1 text-muted small"><i class="fas fa-map-marker-alt me-1"></i> {{ req.address }}</p>
+                                        {% if req.reason %}
+                                        <p class="mb-0 text-muted small">Reason: {{ req.reason }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <span class="status-{{ req.status.lower() }}">
+                                        {{ req.status }}
+                                    </span>
+                                </div>
+                                {% if req.review_notes %}
+                                <div class="mt-2 pt-2 border-top small text-muted">
+                                    <strong>Admin Note:</strong> {{ req.review_notes }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted my-3">No remote work requests found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function getLocation() {
+            const status = document.getElementById('location-status');
+            const display = document.getElementById('location_display');
+            
+            if (!navigator.geolocation) {
+                status.textContent = 'Geolocation is not supported by your browser';
+                status.className = 'form-text text-danger';
+                return;
+            }
+
+            status.textContent = 'Locating...';
+            status.className = 'form-text text-info';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    document.getElementById('lat').value = lat;
+                    document.getElementById('lon').value = lon;
+                    display.value = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                    
+                    status.textContent = 'Location captured successfully!';
+                    status.className = 'form-text text-success';
+                },
+                (error) => {
+                    let msg = 'Unable to retrieve your location';
+                    if (error.code === 1) msg = 'Location permission denied';
+                    else if (error.code === 2) msg = 'Location unavailable';
+                    else if (error.code === 3) msg = 'Location request timed out';
+                    
+                    status.textContent = msg;
+                    status.className = 'form-text text-danger';
+                    alert(msg + '. Please enable location services and try again.');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+    </script>
+</body>
+</html>

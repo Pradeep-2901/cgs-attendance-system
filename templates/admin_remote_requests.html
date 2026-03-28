@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Work Requests - CGS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .requests-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .requests-card:hover {
+            transform: translateY(-3px);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+        }
+        .request-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .request-item:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+        }
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            border: none;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-shield-alt"></i> CGS Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('admin_sites') }}">
+                    <i class="fas fa-building"></i> Manage Sites
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'warning' }} alert-dismissible fade show">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card requests-card">
+            <div class="card-header p-4 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-laptop-house me-2"></i>Remote Work Requests</h4>
+                <span class="badge bg-light text-dark">{{ remote_requests|length }} Requests</span>
+            </div>
+            <div class="card-body p-4">
+                {% if remote_requests %}
+                    {% for req in remote_requests %}
+                    <div class="request-item p-3 bg-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h5 class="mb-1">{{ req.employee_name }}</h5>
+                                <p class="text-muted mb-0 small"><i class="fas fa-id-badge me-1"></i> {{ req.user_id }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                    <strong>{{ req.start_date }} to {{ req.end_date }}</strong>
+                                </div>
+                                <span class="status-{{ req.status.lower() }}">{{ req.status }}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <p class="mb-1 small"><strong>Address:</strong> {{ req.address }}</p>
+                                <p class="mb-0 small text-muted"><strong>Reason:</strong> {{ req.reason }}</p>
+                                <p class="mb-0 small text-muted"><strong>Coords:</strong> {{ req.lat }}, {{ req.lon }}</p>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                {% if req.status == 'Pending' %}
+                                <form action="{{ url_for('update_remote_request', request_id=req.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="input-group input-group-sm mb-2">
+                                        <input type="text" name="review_notes" class="form-control" placeholder="Admin notes...">
+                                    </div>
+                                    <button type="submit" name="action" value="approve" class="btn btn-approve btn-sm me-1">
+                                        <i class="fas fa-check me-1"></i> Approve
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn btn-reject btn-sm">
+                                        <i class="fas fa-times me-1"></i> Reject
+                                    </button>
+                                </form>
+                                {% else %}
+                                <div class="text-muted small">
+                                    <p class="mb-1">Reviewed by: {{ req.reviewed_by or 'Admin' }}</p>
+                                    <p class="mb-0">Note: {{ req.review_notes or 'None' }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No remote work requests found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

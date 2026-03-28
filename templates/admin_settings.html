@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale                            <!-- Enable Geofencing -->
+                            <div class="setting-item">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="geofencing_enabled" name="geofencing_enabled" 
+                                           {{ 'checked' if settings.get('geofencing_enabled') == 'true' else '' }}>
+                                    <label class="form-check-label fw-bold" for="geofencing_enabled">
+                                        <i class="fas fa-shield-alt"></i> Enable Geofencing System
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    When enabled, employees must be within approved locations to mark attendance
+                                </small>
+                            </div>
+
+                            <!-- Office Address -->
+                            <div class="mb-4">
+                                <label for="office_address" class="form-label fw-bold">
+                                    <i class="fas fa-building"></i> Main Office Address
+                                </label>
+                                <textarea class="form-control" id="office_address" name="office_address" rows="3" 
+                                          placeholder="Enter complete office address for automatic coordinate detection">{{ settings.get('office_address', '') }}</textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i> This address will be automatically geocoded to coordinates
+                                </div>
+                            </div>
+
+                            <!-- Office Radius -->
+                            <div class="mb-4">
+                                <label for="office_radius" class="form-label fw-bold">
+                                    <i class="fas fa-crosshairs"></i> Office Check-in Radius (meters)
+                                </label>
+                                <input type="number" class="form-control" id="office_radius" name="office_radius" 
+                                       value="{{ settings.get('office_radius', '200') }}" min="50" max="1000" step="10">
+                                <div class="form-text">
+                                    <i class="fas fa-ruler"></i> Employees must be within this distance from the office to check-in
+                                </div>
+                            </div>
+
+                            <!-- Current Coordinates Display -->
+                            {% if settings.get('office_lat') and settings.get('office_lon') %}
+                            <div class="setting-item">
+                                <h6 class="text-success"><i class="fas fa-map-pin"></i> Current Office Coordinates</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <span class="info-badge">
+                                            <i class="fas fa-globe"></i> Latitude: {{ "%.6f"|format(settings.office_lat|float) }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span class="info-badge">
+                                            <i class="fas fa-globe"></i> Longitude: {{ "%.6f"|format(settings.office_lon|float) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-sync-alt"></i> Coordinates are automatically updated when address changes
+                                </small>
+                            </div>
+                            {% endif %}
+
+                            <!-- Google Maps API Notice -->
+                            <div class="alert alert-info">
+                                <i class="fas fa-key"></i> <strong>Google Maps API Configuration</strong><br>
+                                To enable address geocoding, configure your Google Maps API key in the application code.
+                                <small class="d-block mt-1">
+                                    Location: <code>geocode_address()</code> function in <code>app.py</code>
+                                </small>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-custom btn-lg">
+                                    <i class="fas fa-save"></i> Save Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card settings-card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <a href="{{ url_for('admin_sites') }}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-building"></i> Manage Sites
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <a href="{{ url_for('admin_visit_requests') }}" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-clipboard-check"></i> Visit Requests
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <a href="{{ url_for('manage_employees') }}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-users"></i> Manage Employees
+                                </a>
+            </div><title>Company Settings - CGS Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .settings-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+        .settings-card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            color: white;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-users-cog me-2"></i>Admin Panel
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">Welcome, {{ username }}!</span>
+                <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card card-custom">
+                    <div class="card-header bg-white text-center">
+                        <h4><i class="fas fa-cogs text-primary"></i> System Settings</h4>
+                        <small class="text-muted">Configure company-wide settings</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <h6><i class="fas fa-info-circle text-primary"></i> Office Location Configuration</h6>
+                            <p class="mb-0">Set your company's main office address. This will be used for location validation for office-based employees. The system will automatically geocode the address to coordinates.</p>
+                        </div>
+                        
+                        <form method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="office_address" class="form-label">
+                                        <i class="fas fa-building"></i> Company Office Address *
+                                    </label>
+                                    <textarea class="form-control" id="office_address" name="office_address" rows="3" required
+                                              placeholder="Enter complete office address (e.g., 123 Business Street, City, State, ZIP Code)">{{ settings.get('office_address', '') }}</textarea>
+                                    <small class="text-muted">Enter the complete address of your company's main office</small>
+                                </div>
+                            </div>
+                            
+                            {% if settings.get('office_latitude') and settings.get('office_longitude') %}
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-map-marker-alt"></i> Current Office Coordinates</h6>
+                                        <strong>Address:</strong> {{ settings.get('office_address', 'Not set') }}<br>
+                                        <strong>Latitude:</strong> {{ settings.get('office_latitude', 'Not set') }}<br>
+                                        <strong>Longitude:</strong> {{ settings.get('office_longitude', 'Not set') }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-custom btn-lg me-2">
+                                    <i class="fas fa-save"></i> Save Settings
+                                </button>
+                                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Work Mode Information -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-10">
+                <div class="card card-custom">
+                    <div class="card-header bg-white">
+                        <h5><i class="fas fa-info-circle text-info"></i> Work Mode System</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-building text-primary"></i> Office Mode</h6>
+                                <p>Employees with "Office" work mode must check in/out from the configured office location (within 200 meters radius).</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-home text-success"></i> Remote Mode</h6>
+                                <p>Employees with "Remote" work mode must check in/out from their designated remote work address (within 200 meters radius).</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6><i class="fas fa-star text-warning"></i> Site Visits</h6>
+                                <p>Approved site visits always take priority over default work modes. Employees can temporarily work from approved locations regardless of their default mode.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CGS Attendance System</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .navbar-menu a, .navbar-menu button {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .navbar-menu a:hover, .navbar-menu button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .status-checked-in {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-not-checked {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 16px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>CGS Attendance System</h1>
+        <div class="navbar-menu">
+            <a href="./mark_attendance.html">Mark Attendance</a>
+            <a href="./leave_management.html">My Leave</a>
+            <span id="userName" style="font-style: italic;"></span>
+            <button data-action="logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, <span id="employeeName">Employee</span></h2>
+            <p id="greetingMessage">Loading your dashboard...</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Today's Attendance Card -->
+            <div class="card">
+                <h2>Today's Attendance</h2>
+                <div id="attendanceStatus" class="loading">Loading...</div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="card">
+                <h2>Account Balance</h2>
+                <div id="balanceInfo" class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h2>Quick Actions</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="./mark_attendance.html" class="btn btn-large">📍 Check In / Check Out</a>
+                <a href="./leave_management.html" class="btn btn-large">📋 Apply for Leave</a>
+                <a href="./view_attendance.html" class="btn btn-large">📊 View Attendance</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+        let dashboardData = {};
+
+        /**
+         * Initialize dashboard
+         */
+        async function initDashboard() {
+            // Require authentication
+            if (!requireAuth(['employee'])) return;
+            
+            const user = getCurrentUser();
+            document.getElementById('userName').textContent = user.name || user.username;
+            document.getElementById('employeeName').textContent = user.name || user.username;
+            
+            // Set greeting message
+            const hour = new Date().getHours();
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
+            else if (hour >= 18) greeting = 'Good evening';
+            document.getElementById('greetingMessage').textContent = 
+                `${greeting}! Here's your attendance overview for today.`;
+            
+            // Load dashboard data
+            await loadDashboardData();
+        }
+
+        /**
+         * Load dashboard data from backend
+         */
+        async function loadDashboardData() {
+            try {
+                const result = await apiCall('/dashboard?format=json', 'GET');
+                
+                if (result.status === 'success') {
+                    dashboardData = result;
+                    updateAttendanceStatus(result.today_attendance);
+                    updateBalanceInfo(result.compoff_balance, result.geofence_status);
+                } else {
+                    showError('Failed to load dashboard: ' + result.message);
+                }
+            } catch (error) {
+                showError('Error loading dashboard: ' + error.message);
+            }
+        }
+
+        /**
+         * Update attendance status display
+         */
+        function updateAttendanceStatus(attendance) {
+            const statusDiv = document.getElementById('attendanceStatus');
+            
+            if (!attendance) {
+                statusDiv.innerHTML = `
+                    <p>Not checked in today</p>
+                    <span class="status status-not-checked">Not Started</span>
+                    <p style="margin-top: 15px; font-size: 12px; color: #999;">
+                        Click "Check In / Check Out" to begin your attendance.
+                    </p>
+                `;
+                return;
+            }
+            
+            let html = `
+                <p>Status: <span class="status status-checked-in">Checked In</span></p>
+                <table style="width: 100%; text-align: left;">
+                    <tr>
+                        <td style="padding: 5px 0;"><strong>Check-in Time:</strong></td>
+                        <td style="padding: 5px 0;">${formatTime(attendance.check_in_time)}</td>
+                    </tr>
+            `;
+            
+            if (attendance.check_out_time) {
+                html += `
+                    <tr>
+                        <td style="padding: 5px 0;"><strong>Check-out Time:</strong></td>
+                        <td style="padding: 5px 0;">${formatTime(attendance.check_out_time)}</td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                    <tr>
+                        <td style="padding: 5px 0;"><strong>Type:</strong></td>
+                        <td style="padding: 5px 0;">${attendance.attendance_type || 'Regular'}</td>
+                    </tr>
+                </table>
+            `;
+            
+            statusDiv.innerHTML = html;
+        }
+
+        /**
+         * Update balance information
+         */
+        function updateBalanceInfo(compoffBalance, geofenceStatus) {
+            const balanceDiv = document.getElementById('balanceInfo');
+            
+            balanceDiv.innerHTML = `
+                <table style="width: 100%; text-align: left;">
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Comp-off Balance:</strong></td>
+                        <td style="padding: 8px 0; font-weight: bold; color: #667eea;">
+                            ${compoffBalance || 0} days
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Geofence Status:</strong></td>
+                        <td style="padding: 8px 0; text-transform: capitalize;">
+                            ${geofenceStatus === 'approved' ? '✓ Approved' : geofenceStatus === 'pending' ? '⏳ Pending' : '✗ None'}
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        /**
+         * Format time string
+         */
+        function formatTime(timeStr) {
+            if (!timeStr) return 'N/A';
+            try {
+                const time = new Date(timeStr);
+                return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        /**
+         * Show error message
+         */
+        function showError(message) {
+            const container = document.querySelector('.container');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            container.insertBefore(errorDiv, container.firstChild);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
