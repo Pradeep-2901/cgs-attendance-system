@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records - CGS Attendance System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-link:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-checked {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-data i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-links {
+                gap: 15px;
+                font-size: 12px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <i class="fas fa-chart-line"></i> CGS Attendance
+            </div>
+            <div class="navbar-links">
+                <a href="./dashboard.html" class="navbar-link">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="./mark_attendance.html" class="navbar-link">
+                    <i class="fas fa-clock"></i> Mark Attendance
+                </a>
+                <a href="./view_attendance.html" class="navbar-link">
+                    <i class="fas fa-list"></i> Records
+                </a>
+                <a href="#" onclick="handleLogout(event)" class="navbar-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Attendance Records</h1>
+            <p>View your attendance history</p>
+        </div>
+
+        <div class="alert alert-error" id="error-alert"></div>
+
+        <div class="card">
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-month">Month/Year:</label>
+                    <input type="month" id="filter-month">
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="applyFilters()" style="margin-top: 22px;">
+                        <i class="fas fa-search"></i> Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading-state">
+                <div class="spinner"></div>
+                <p>Loading your attendance records...</p>
+            </div>
+
+            <!-- Table -->
+            <div id="table-container" style="display: none;">
+                <div class="table-container">
+                    <table id="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Check-In</th>
+                                <th>Check-Out</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No Data -->
+            <div class="no-data" id="no-data-state" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <h4>No Records Found</h4>
+                <p>No attendance records for the selected period</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = localStorage.getItem('API_URL') || 'http://localhost:5000';
+
+        /**
+         * Check authentication
+         */
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/api/check_session`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    window.location.href = './index.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                window.location.href = './index.html';
+                return false;
+            }
+        }
+
+        /**
+         * Load attendance records
+         */
+        async function loadAttendance() {
+            try {
+                const response = await fetch(`${API_URL}/api/attendance`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = './index.html';
+                    return;
+                }
+
+                const data = await response.json();
+                displayAttendance(data.records || []);
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+                document.getElementById('error-alert').textContent = 'Error loading attendance records';
+                document.getElementById('error-alert').classList.add('show');
+                document.getElementById('loading-state').style.display = 'none';
+            }
+        }
+
+        /**
+         * Display attendance records
+         */
+        function displayAttendance(records) {
+            const tbody = document.getElementById('attendance-body');
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('no-data-state').style.display = 'block';
+                return;
+            }
+
+            records.forEach(record => {
+                const date = new Date(record.date).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const checkIn = record.check_in_time || '-';
+                const checkOut = record.check_out_time || '-';
+                const status = record.check_in_time ? 'Checked In' : 'Pending';
+                const statusBadge = record.check_in_time ? 'badge-checked' : 'badge-pending';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${date}</strong></td>
+                    <td>${checkIn}</td>
+                    <td>${checkOut}</td>
+                    <td>-</td>
+                    <td><span class="badge ${statusBadge}">${status}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('table-container').style.display = 'block';
+        }
+
+        /**
+         * Apply filters
+         */
+        function applyFilters() {
+            const month = document.getElementById('filter-month').value;
+            console.log('Filter by month:', month);
+            // Implement filtering logic
+        }
+
+        /**
+         * Logout
+         */
+        function handleLogout(e) {
+            e.preventDefault();
+            fetch(`${API_URL}/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            }).catch(e => console.log('Logout complete'));
+            window.location.href = './index.html';
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            const isAuth = await checkAuth();
+            if (isAuth) {
+                await loadAttendance();
+            }
+        });
+    </script>
+</body>
+</html>
