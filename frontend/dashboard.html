@@ -238,7 +238,15 @@
          */
         async function loadDashboardData() {
             try {
-                const result = await apiCall('/dashboard?format=json', 'GET');
+                const user = getCurrentUser();
+                // Pass user data as query params so endpoint doesn't need session
+                const params = new URLSearchParams({
+                    user_id: user.user_id,
+                    role: user.role,
+                    username: user.username,
+                    employee_name: user.name
+                });
+                const result = await apiCall(`/api/dashboard?${params}`, 'GET');
                 
                 if (result.status === 'success') {
                     dashboardData = result;

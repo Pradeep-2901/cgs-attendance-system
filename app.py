@@ -1558,9 +1558,41 @@ def submit_remote_request():
 
 # ====================== EMPLOYEE ROUTES ======================
 
-@app.route('/dashboard')
-@employee_required
-def dashboard():
+@app.route('/api/dashboard')
+def api_dashboard():
+    """Dashboard API endpoint that doesn't require session (frontend handles auth)"""
+    user_id = request.args.get('user_id') or session.get('user_id')
+    role = request.args.get('role') or session.get('role')
+    username = request.args.get('username') or session.get('username')
+    employee_name = request.args.get('employee_name') or session.get('employee_name')
+    
+    # If no user data provided, return error
+    if not user_id:
+        return jsonify({'status': 'error', 'message': 'User ID required'}), 401
+    
+    today = date.today()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM attendance WHERE user_id = %s AND date = %s", (user_id, today))
+        today_attendance = cursor.fetchone()
+        cursor.execute("SELECT geofence_status, compoff_balance FROM users WHERE user_id=%s", (user_id,))
+        row = cursor.fetchone()
+        geofence_status = row['geofence_status'] if row else 'none'
+        compoff_balance = row.get('compoff_balance',0) if row else 0
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'username': username,
+            'employee_name': employee_name,
+            'today_attendance': today_attendance,
+            'geofence_status': geofence_status,
+            'compoff_balance': compoff_balance
+        }), 200
+    except Exception as e:
+        print(f"Dashboard API error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
     """Dashboard with support for both HTML rendering and JSON API"""
     user_id = session.get('user_id')
     today = date.today()
