@@ -11,6 +11,20 @@
             window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
             localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
         }
+        
+        // IMMEDIATELY set the user name from localStorage BEFORE page renders
+        try {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = './index.html';
+            } else {
+                const userData = JSON.parse(user);
+                // Store for later use
+                window.currentUserData = userData;
+            }
+        } catch (e) {
+            window.location.href = './index.html';
+        }
     </script>
     <style>
         * {
@@ -389,7 +403,7 @@
                 <a href="./mark_attendance.html">Mark Attendance</a>
                 <a href="./view_attendance.html">My Records</a>
                 <a href="./leave_management.html">My Leave</a>
-                <span id="user-display"></span>
+                <span id="user-display" style="color: white; font-weight: 600;"></span>
                 <a href="#" onclick="handleLogout(event)">Logout</a>
             </div>
         </div>
@@ -445,6 +459,14 @@
     
     <script src="./static/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Get user immediately from localStorage (synchronous)
+        function handleLogout(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('API_URL');
+            window.location.href = './index.html';
+        }
+        
         // Set current date
         document.getElementById('current-date').textContent = 
             new Date().toLocaleDateString('en-US', { 
@@ -454,27 +476,18 @@
                 day: 'numeric' 
             });
         
-        function handleLogout(e) {
-            e.preventDefault();
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('API_URL');
-            window.location.href = './index.html';
-        }
-        
         async function loadDashboardData() {
             try {
-                const user = localStorage.getItem('currentUser');
-                if (!user) {
+                const userData = window.currentUserData;
+                if (!userData) {
                     window.location.href = './index.html';
                     return;
                 }
                 
-                const userData = JSON.parse(user);
-                
-                // Update navbar with user name
+                // Display employee name IMMEDIATELY from pre-loaded data
                 const nameDisplay = userData.name || userData.username;
-                document.getElementById('user-display').textContent = nameDisplay;
                 document.getElementById('welcome-name').textContent = `Welcome, ${nameDisplay}!`;
+                document.getElementById('user-display').textContent = nameDisplay;
                 
                 let apiUrl = window.API_URL_OVERRIDE || localStorage.getItem('API_URL') || 'http://localhost:5000';
                 
@@ -548,7 +561,6 @@
     </script>
 </body>
 </html>
-    <script>
         const hostname = window.location.hostname;
         if (hostname.includes('netlify.app')) {
             window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
