@@ -11,10 +11,10 @@ function initializeConfig() {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
         apiUrl = 'http://localhost:5000';
     } else if (hostname.includes('netlify.app')) {
-        // Use Render backend URL for production
-        apiUrl = localStorage.getItem('API_URL') || 'https://cgs-backend.onrender.com';
+        // Use Render backend URL for production - UPDATED WITH CORRECT URL
+        apiUrl = 'https://cgs-attendance-system.onrender.com';
     } else {
-        apiUrl = localStorage.getItem('API_URL') || `https://${hostname}:5000`;
+        apiUrl = `https://${hostname}:5000`;
     }
     
     // Store in localStorage for access across all pages
@@ -28,7 +28,7 @@ function initializeConfig() {
 
 // Get API URL from storage or config
 function getApiUrl() {
-    return localStorage.getItem('API_URL') || 'http://localhost:5000';
+    return localStorage.getItem('API_URL') || 'https://cgs-attendance-system.onrender.com';
 }
 
 // Check if user is authenticated (from session)
