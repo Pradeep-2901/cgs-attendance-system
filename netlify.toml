@@ -4,11 +4,12 @@
   command = "echo 'Static content deployed'"
   publish = "."
 
-# Redirect all routes to index.html for SPA routing
+# Only redirect 404s to index.html for SPA-style deep links
+# NOT all routes (since we have real HTML pages)
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
+  status = 404
 
 # Environment variables for production
 [context.production]
