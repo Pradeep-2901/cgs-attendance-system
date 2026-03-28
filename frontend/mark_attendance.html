@@ -3,391 +3,606 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Mark Attendance</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Mark Attendance - CGS System</title>
+    <link rel="stylesheet" href="./css/styles.css">
     <style>
-        .attendance-container {
-            max-width: 700px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .navbar-menu a, .navbar-menu button {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .navbar-menu a:hover, .navbar-menu button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 800px;
             margin: 30px auto;
-            padding: 20px;
+            padding: 0 20px;
+        }
+        
+        .card {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .status-display {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             text-align: center;
         }
         
-        #video {
-            width: 100%;
-            max-width: 500px;
-            border: 3px solid #ddd;
-            border-radius: 15px;
-            margin: 20px 0;
+        .time-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .location-display {
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0;
         }
         
         .btn {
-            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            display: inline-block;
             padding: 15px 30px;
+            background: #667eea;
+            color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
             margin: 10px;
-            transition: all 0.3s;
+            width: 100%;
         }
         
-        .btn:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .btn:hover {
+            background: #5568d3;
         }
         
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
         }
         
-        .btn-checkin {
-            background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+        .btn-danger {
+            background: #dc3545;
         }
         
-        .btn-checkout {
-            background: linear-gradient(45deg, #ff6b6b 0%, #ee5a24 100%);
+        .btn-danger:hover {
+            background: #c82333;
         }
         
-        .status {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 10px;
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
             font-weight: bold;
         }
         
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
-        
-        .current-status {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid #007bff;
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
         
-        .action-section {
-            margin: 30px 0;
+        video {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        #cameraPreview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #000;
+        }
+        
+        #capturedPhoto {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .button-group button {
+            flex: 1;
         }
     </style>
 </head>
 <body>
-    <div class="attendance-container">
-        <h2>📸 Mark Attendance</h2>
-        <h3>{{ employee_name }}</h3>
-        
-        <div class="current-status">
-            <h4>Today's Status:</h4>
-            {% if today_attendance %}
-                <p><strong>Check-in:</strong> 
-                    {% if today_attendance.check_in_time %}
-                        {{ today_attendance.check_in_time | time_format('%H:%M:%S') }} ✅
-                    {% else %}
-                        Not done ❌
-                    {% endif %}
-                </p>
-                <p><strong>Check-out:</strong> 
-                    {% if today_attendance.check_out_time %}
-                        {{ today_attendance.check_out_time | time_format('%H:%M:%S') }} ✅
-                    {% else %}
-                        Not done ❌
-                    {% endif %}
-                </p>
-            {% else %}
-                <p>No attendance recorded yet today.</p>
-            {% endif %}
+    <!-- Navigation -->
+    <nav class="navbar">
+        <h1>Mark Attendance</h1>
+        <div class="navbar-menu">
+            <a href="./dashboard.html">Dashboard</a>
+            <a href="./leave_management.html">My Leave</a>
+            <button data-action="logout">Logout</button>
         </div>
-        
-        <video id="video" autoplay style="display: none;"></video>
-        
-        <div class="action-section">
-            <button class="btn" onclick="startCamera()">📹 Start Camera</button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Status Card -->
+        <div class="card">
+            <h2>Today's Status</h2>
+            <div id="statusMessage" class="loading">Loading your status...</div>
+        </div>
+
+        <!-- Check-in/Check-out Card -->
+        <div class="card">
+            <h2>Attendance Actions</h2>
             
-            <div style="margin: 20px 0;">
-                <button id="checkinBtn" class="btn btn-checkin" onclick="performCheckin()" 
-                        {% if today_attendance and today_attendance.check_in_time %}disabled{% endif %}>
-                    ⏰ Check-In
-                </button>
-                
-                <button id="checkoutBtn" class="btn btn-checkout" onclick="performCheckout()"
-                        {% if not today_attendance or not today_attendance.check_in_time or (today_attendance.check_out_time) %}disabled{% endif %}>
-                    🏠 Check-Out
-                </button>
+            <div class="info-box">
+                ℹ️ To mark attendance, you need:
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>Location permission enabled</li>
+                    <li>Camera access (for photo capture)</li>
+                    <li>Valid GPS coordinates</li>
+                </ul>
             </div>
+
+            <!-- Current Time Display -->
+            <div class="status-display">
+                <p style="color: #666; font-size: 14px;">Current Time</p>
+                <div class="time-display" id="currentTime">--:--:--</div>
+                <div class="location-display" id="locationStatus">📍 Location: --</div>
+            </div>
+
+            <!-- Location Input (for manual entry if GPS fails) -->
+            <div class="form-group" style="display: none;" id="manualLocationGroup">
+                <label>Manual Coordinates (if GPS fails)</label>
+                <input type="text" id="manualLatitude" placeholder="Latitude" />
+                <input type="text" id="manualLongitude" placeholder="Longitude" />
+            </div>
+
+            <!-- Camera Preview -->
+            <div id="cameraContainer" style="display: none;">
+                <canvas id="cameraPreview" style="display: none;"></canvas>
+                <video id="videoPreview" playsinline style="display: none;"></video>
+                <img id="capturedPhoto" alt="Captured Photo" />
+                <div class="button-group">
+                    <button class="btn btn-success" id="capturePhotoBtn" style="display: none;">📸 Capture Photo</button>
+                    <button class="btn btn-danger" id="resetPhotoBtn" style="display: none;">Reset Photo</button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn btn-success" id="checkInBtn" onclick="handleCheckIn()">✓ Check In</button>
+                <button class="btn btn-danger" id="checkOutBtn" onclick="handleCheckOut()" style="display: none;">✗ Check Out</button>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="resultMessage"></div>
         </div>
-        
-        <div id="status"></div>
-        <div id="location-info"></div>
-        
-        <div style="margin-top: 30px;">
-            <a href="{{ url_for('dashboard') }}" class="btn">🏠 Back to Dashboard</a>
+
+        <!-- History Card -->
+        <div class="card">
+            <h2>Recent Attendance</h2>
+            <div id="historyList" class="loading">Loading history...</div>
         </div>
     </div>
 
+    <script src="./js/config.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
     <script>
-        let video = document.getElementById('video');
-        let currentLatitude = null;
-        let currentLongitude = null;
-        let cameraStarted = false;
-        
-        // High-accuracy geolocation options
-        const geoOptions = {
-            enableHighAccuracy: true,  // Request GPS/high-accuracy positioning
-            timeout: 10000,            // 10 second timeout
-            maximumAge: 0              // Do not use cached position
-        };
-        
-        // Enhanced error handler with specific user-friendly messages
-        function handleGeolocationError(error) {
-            let errorMessage = '';
-            let errorHTML = '';
-            
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorMessage = "Location access denied. Please enable location permissions in your browser settings.";
-                    errorHTML = '<div class="status error">❌ Location Permission Denied<br><small>Please allow location access in browser settings</small></div>';
-                    break;
-                    
-                case error.POSITION_UNAVAILABLE:
-                    errorMessage = "Location information unavailable. Please ensure GPS is enabled.";
-                    errorHTML = '<div class="status error">❌ Location Unavailable<br><small>Enable GPS and ensure good signal</small></div>';
-                    break;
-                    
-                case error.TIMEOUT:
-                    errorMessage = "Location request timed out. Please try again.";
-                    errorHTML = '<div class="status error">❌ Location Timeout<br><small>Check GPS settings and try again</small></div>';
-                    break;
-                    
-                default:
-                    errorMessage = "Unknown location error occurred.";
-                    errorHTML = '<div class="status error">❌ Location Error<br><small>Please try again</small></div>';
-            }
-            
-            console.error('[Geolocation Error]', {
-                code: error.code,
-                message: error.message,
-                timestamp: new Date().toISOString()
-            });
-            
-            document.getElementById('location-info').innerHTML = errorHTML;
-            alert(errorMessage);
-        }
-        
-        // Get high-accuracy location on page load
-        function getLocation() {
-            if (!navigator.geolocation) {
-                document.getElementById('location-info').innerHTML = 
-                    '<div class="status error">❌ Geolocation not supported by your browser</div>';
-                alert('Geolocation is not supported by your browser. Please use a modern browser (Chrome, Firefox, Safari, Edge).');
-                return;
-            }
-            
-            console.log('[Geolocation] Requesting high-accuracy position...');
-            document.getElementById('location-info').innerHTML = 
-                '<div class="status info">� Getting high-accuracy location...</div>';
-            
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    currentLatitude = position.coords.latitude;
-                    currentLongitude = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-                    
-                    console.log('[Geolocation] Success:', {
-                        lat: currentLatitude,
-                        lon: currentLongitude,
-                        accuracy: accuracy.toFixed(2) + 'm',
-                        timestamp: new Date(position.timestamp).toISOString()
-                    });
-                    
-                    document.getElementById('location-info').innerHTML = 
-                        `<div class="status success">✅ Location: ${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)}<br><small>Accuracy: ±${accuracy.toFixed(0)}m</small></div>`;
-                },
-                handleGeolocationError,
-                geoOptions  // High-accuracy options passed as third argument
-            );
-        }
-        
-        // Start camera
-        function startCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.style.display = 'block';
-                    cameraStarted = true;
-                    document.getElementById('status').innerHTML = 
-                        '<div class="status success">📹 Camera ready!</div>';
-                })
-                .catch(function(error) {
-                    document.getElementById('status').innerHTML = 
-                        '<div class="status error">❌ Camera access denied</div>';
-                });
-        }
-        
-        // Capture image
-        function captureImage() {
-            if (!cameraStarted) {
-                document.getElementById('status').innerHTML = 
-                    '<div class="status error">❌ Please start camera first!</div>';
-                return null;
-            }
-            
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0);
-            
-            return canvas.toDataURL('image/jpeg', 0.8);
-        }
-        
-        // Check-in
-        async function performCheckin() {
-            console.log('🔵 [CHECK-IN] Function called');
-            
-            const imageData = captureImage();
-            if (!imageData) {
-                console.log('❌ [CHECK-IN] No image captured');
-                return;
-            }
-            
-            if (!currentLatitude || !currentLongitude) {
-                console.log('❌ [CHECK-IN] No location available');
-                document.getElementById('status').innerHTML = 
-                    '<div class="status error">❌ Location not available</div>';
-                return;
-            }
-            
-            console.log(`📍 [CHECK-IN] Location: ${currentLatitude}, ${currentLongitude}`);
-            document.getElementById('status').innerHTML = 
-                '<div class="status info">⏳ Processing check-in...</div>';
-            
-            // Use simple JSON payload instead of FormData to avoid boundary issues
-            const payload = {
-                image: imageData,
-                latitude: currentLatitude,
-                longitude: currentLongitude
-            };
-            
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            console.log('📤 [CHECK-IN] Sending JSON request to /checkin');
+        let currentLocation = null;
+        let capturedImageData = null;
+        let stream = null;
 
+        /**
+         * Initialize attendance page
+         */
+        async function initAttendance() {
+            if (!requireAuth(['employee'])) return;
+            
+            // Update time
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Load status
+            await loadAttendanceStatus();
+            
+            // Setup camera if available
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                setupCamera();
+            }
+        }
+
+        /**
+         * Update current time display
+         */
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('en-US', { hour12: false });
+        }
+
+        /**
+         * Setup camera
+         */
+        async function setupCamera() {
+            const videoPreview = document.getElementById('videoPreview');
+            const cameraContainer = document.getElementById('cameraContainer');
+            
             try {
-                const response = await fetch('/checkin', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify(payload)
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' },
+                    audio: false
                 });
                 
-                console.log(`📥 [CHECK-IN] Response status: ${response.status}`);
+                videoPreview.srcObject = stream;
+                videoPreview.style.display = 'block';
+                cameraContainer.style.display = 'block';
                 
-                // Always try to parse JSON
-                let data;
-                try {
-                    data = await response.json();
-                    console.log('📥 [CHECK-IN] Response data:', data);
-                } catch (e) {
-                    console.error('❌ [CHECK-IN] JSON Parse Error:', e);
-                    throw new Error(`Invalid server response (Status ${response.status})`);
+                // Setup capture button
+                document.getElementById('capturePhotoBtn').style.display = 'block';
+                document.getElementById('capturePhotoBtn').onclick = capturePhoto;
+                document.getElementById('resetPhotoBtn').onclick = resetPhoto;
+                
+            } catch (error) {
+                console.warn('Camera access denied:', error);
+                showMessage('Camera access denied. You can still check in without a photo.', 'info');
+            }
+        }
+
+        /**
+         * Get current location
+         */
+        function getLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation not supported'));
+                    return;
                 }
                 
-                if (data.status === 'success') {
-                    console.log('✅ [CHECK-IN] Success!');
-                    document.getElementById('status').innerHTML = 
-                        `<div class="status success">✅ ${data.message}<br>Time: ${data.time}</div>`;
-                    
-                    document.getElementById('checkinBtn').disabled = true;
-                    document.getElementById('checkoutBtn').disabled = false;
-                    setTimeout(() => location.reload(), 3000);
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        document.getElementById('locationStatus').textContent = 
+                            `📍 Lat: ${currentLocation.latitude.toFixed(6)}, Lon: ${currentLocation.longitude.toFixed(6)}`;
+                        resolve(currentLocation);
+                    },
+                    (error) => {
+                        console.warn('Location access denied:', error);
+                        document.getElementById('manualLocationGroup').style.display = 'block';
+                        showMessage('Location access denied. Enter coordinates manually or allow location access.', 'warning');
+                        reject(error);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            });
+        }
+
+        /**
+         * Capture photo from camera
+         */
+        async function capturePhoto() {
+            const videoPreview = document.getElementById('videoPreview');
+            const canvas = document.getElementById('cameraPreview');
+            const ctx = canvas.getContext('2d');
+            
+            // Match canvas size to video
+            canvas.width = videoPreview.videoWidth;
+            canvas.height = videoPreview.videoHeight;
+            
+            // Draw video to canvas
+            ctx.drawImage(videoPreview, 0, 0);
+            
+            // Get image data
+            capturedImageData = canvas.toDataURL('image/jpeg');
+            
+            // Show captured photo
+            const photoImg = document.getElementById('capturedPhoto');
+            photoImg.src = capturedImageData;
+            photoImg.style.display = 'block';
+            
+            // Hide camera and show reset
+            videoPreview.style.display = 'none';
+            document.getElementById('capturePhotoBtn').style.display = 'none';
+            document.getElementById('resetPhotoBtn').style.display = 'block';
+            
+            showMessage('✓ Photo captured', 'success');
+        }
+
+        /**
+         * Reset photo capture
+         */
+        function resetPhoto() {
+            document.getElementById('videoPreview').style.display = 'block';
+            document.getElementById('capturedPhoto').style.display = 'none';
+            document.getElementById('capturePhotoBtn').style.display = 'block';
+            document.getElementById('resetPhotoBtn').style.display = 'none';
+            capturedImageData = null;
+        }
+
+        /**
+         * Handle check-in
+         */
+        async function handleCheckIn() {
+            const btn = document.getElementById('checkInBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            try {
+                // Get location
+                showMessage('Getting location...', 'info');
+                let location = currentLocation;
+                
+                if (!location) {
+                    try {
+                        location = await getLocation();
+                    } catch (e) {
+                        // Try manual location
+                        const lat = document.getElementById('manualLatitude').value;
+                        const lon = document.getElementById('manualLongitude').value;
+                        if (!lat || !lon) {
+                            throw new Error('Location required. Enable GPS or enter coordinates.');
+                        }
+                        location = { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+                    }
+                }
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('latitude', location.latitude);
+                formData.append('longitude', location.longitude);
+                
+                if (capturedImageData) {
+                    formData.append('image', capturedImageData);
+                }
+                
+                // Submit check-in
+                showMessage('Submitting check-in...', 'info');
+                const result = await uploadFile('/checkin', formData);
+                
+                if (result.status === 'success') {
+                    showMessage(result.message || '✓ Check-in successful!', 'success');
+                    document.getElementById('checkInBtn').style.display = 'none';
+                    document.getElementById('checkOutBtn').style.display = 'block';
+                    await loadAttendanceStatus();
                 } else {
-                    console.error('❌ [CHECK-IN] Server error:', data);
-                    document.getElementById('status').innerHTML = 
-                        `<div class="status error">❌ ${data.message}</div>`;
+                    showMessage(result.message || 'Check-in failed', 'error');
                 }
             } catch (error) {
-                console.error('❌ [CHECK-IN] Fetch error:', error);
-                document.getElementById('status').innerHTML = 
-                    `<div class="status error">❌ Network error: ${error.message}</div>`;
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✓ Check In';
             }
         }
-        
-        // Check-out
-        function performCheckout() {
-            const imageData = captureImage();
-            if (!imageData) return;
-            
-            if (!currentLatitude || !currentLongitude) {
-                document.getElementById('status').innerHTML = 
-                    '<div class="status error">❌ Location not available</div>';
-                return;
-            }
-            
-            document.getElementById('status').innerHTML = 
-                '<div class="status info">⏳ Processing check-out...</div>';
-            
-            const formData = new FormData();
-            formData.append('image', imageData);
-            formData.append('latitude', currentLatitude);
-            formData.append('longitude', currentLongitude);
-            
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            formData.append('csrf_token', csrfToken);
 
-            fetch('/checkout', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
-                body: formData
-            })
-            .then(response => {
-                console.log('Check-out response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        /**
+         * Handle check-out
+         */
+        async function handleCheckOut() {
+            const btn = document.getElementById('checkOutBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            try {
+                // Get location
+                showMessage('Getting location...', 'info');
+                let location = currentLocation;
+                
+                if (!location) {
+                    try {
+                        location = await getLocation();
+                    } catch (e) {
+                        const lat = document.getElementById('manualLatitude').value;
+                        const lon = document.getElementById('manualLongitude').value;
+                        if (!lat || !lon) {
+                            throw new Error('Location required for check-out.');
+                        }
+                        location = { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+                    }
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Check-out data:', data);
-                if (data.status === 'success') {
-                    document.getElementById('status').innerHTML = 
-                        `<div class="status success">✅ ${data.message}<br>Time: ${data.time}</div>`;
-                    
-                    // Disable check-out
-                    document.getElementById('checkoutBtn').disabled = true;
-                    
-                    // Refresh page after 3 seconds
-                    setTimeout(() => location.reload(), 3000);
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('latitude', location.latitude);
+                formData.append('longitude', location.longitude);
+                
+                if (capturedImageData) {
+                    formData.append('image', capturedImageData);
+                }
+                
+                // Submit check-out
+                showMessage('Submitting check-out...', 'info');
+                const result = await uploadFile('/checkout', formData);
+                
+                if (result.status === 'success') {
+                    showMessage(result.message || '✓ Check-out successful!', 'success');
+                    document.getElementById('checkOutBtn').style.display = 'none';
+                    document.getElementById('checkInBtn').style.display = 'block';
+                    capturedImageData = null;
+                    resetPhoto();
+                    await loadAttendanceStatus();
                 } else {
-                    document.getElementById('status').innerHTML = 
-                        `<div class="status error">❌ ${data.message}</div>`;
+                    showMessage(result.message || 'Check-out failed', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Check-out error:', error);
-                document.getElementById('status').innerHTML = 
-                    `<div class="status error">❌ Network error: ${error.message}</div>`;
-            });
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✗ Check Out';
+            }
         }
-        
-        // Initialize
-        window.onload = function() {
-            getLocation();
-        };
+
+        /**
+         * Load attendance status
+         */
+        async function loadAttendanceStatus() {
+            try {
+                const result = await apiCall('/dashboard?format=json', 'GET');
+                
+                if (result.status === 'success' && result.today_attendance) {
+                    const att = result.today_attendance;
+                    let html = '<div class="success">✓ Checked in today</div>';
+                    html += `<p><strong>Check-in:</strong> ${formatTime(att.check_in_time)}</p>`;
+                    
+                    if (att.check_out_time) {
+                        html += `<p><strong>Check-out:</strong> ${formatTime(att.check_out_time)}</p>`;
+                        document.getElementById('checkOutBtn').style.display = 'none';
+                        document.getElementById('checkInBtn').style.display = 'block';
+                    } else {
+                        document.getElementById('checkOutBtn').style.display = 'block';
+                        document.getElementById('checkInBtn').style.display = 'none';
+                    }
+                    
+                    document.getElementById('statusMessage').innerHTML = html;
+                } else {
+                    document.getElementById('statusMessage').innerHTML = 
+                        '<div class="info-box">No attendance marked today. Click "Check In" to start.</div>';
+                }
+            } catch (error) {
+                document.getElementById('statusMessage').innerHTML = 
+                    '<div class="error">Error loading status: ' + error.message + '</div>';
+            }
+        }
+
+        /**
+         * Format time
+         */
+        function formatTime(timeStr) {
+            if (!timeStr) return 'N/A';
+            try {
+                const time = new Date(timeStr);
+                return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        /**
+         * Show message
+         */
+        function showMessage(message, type = 'info') {
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initAttendance);
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
     </script>
 </body>
 </html>
