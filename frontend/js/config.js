@@ -8,12 +8,25 @@ function initializeConfig() {
     const hostname = window.location.hostname;
     
     let apiUrl;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    
+    // Priority 1: Check for Netlify environment variable injected at build time
+    // This is set via Netlify's environment variables
+    if (window.ENV_API_URL) {
+        apiUrl = window.ENV_API_URL;
+    }
+    // Priority 2: Local storage (user-set)
+    else if (localStorage.getItem('API_URL_OVERRIDE')) {
+        apiUrl = localStorage.getItem('API_URL_OVERRIDE');
+    }
+    // Priority 3: Auto-detect based on hostname
+    else if (hostname === 'localhost' || hostname === '127.0.0.1') {
         apiUrl = 'http://localhost:5000';
-    } else if (hostname.includes('netlify.app')) {
-        // Use Render backend URL for production - UPDATED WITH CORRECT URL
+    } 
+    else if (hostname.includes('netlify.app')) {
+        // Production: Use Render backend
         apiUrl = 'https://cgs-attendance-system.onrender.com';
-    } else {
+    } 
+    else {
         apiUrl = `https://${hostname}:5000`;
     }
     
@@ -28,6 +41,7 @@ function initializeConfig() {
 
 // Get API URL from storage or config
 function getApiUrl() {
+    // Always return the configured value
     return localStorage.getItem('API_URL') || 'https://cgs-attendance-system.onrender.com';
 }
 
