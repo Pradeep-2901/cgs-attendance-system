@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comp-off Report | Admin Panel</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- FontAwesome fallback to CDN if local not found, or use local if available -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-custom {
+            background-color: #667eea;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .table thead th {
+            background-color: #212529;
+            color: white;
+            border-bottom: 0;
+        }
+        .badge-status {
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+        }
+        .empty-row {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom navbar-dark shadow-sm mb-4">
+        <div class="container-fluid px-4">
+            <span class="navbar-brand mb-0 h1">Admin Panel</span>
+            <div class="navbar-nav ms-auto d-flex flex-row gap-3">
+                <a class="nav-link text-white" href="{{ url_for('manage_holidays') }}">Holidays</a>
+                <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <!-- Pending Requests Section -->
+        <div class="mb-5">
+            {% set pending_requests = report_data | selectattr('status', 'equalto', 'Pending') | list %}
+            <h3 class="section-title">Pending Comp-off Requests ({{ pending_requests|length }})</h3>
+            
+            <div class="card shadow-sm border-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Employee</th>
+                                <th>Date</th>
+                                <th>Reason</th>
+                                <th>Requested</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if pending_requests %}
+                                {% for req in pending_requests %}
+                                <tr>
+                                    <td>{{ req.id }}</td>
+                                    <td>{{ req.employee }}</td>
+                                    <td>{{ req.date }}</td>
+                                    <td>{{ req.reason }}</td>
+                                    <td>{{ req.lifecycle_status }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_compoff_requests') }}" class="btn btn-sm btn-primary">Review</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 bg-light text-muted">
+                                        No pending requests.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Decisions / History Section -->
+        <div class="mb-4">
+            <h3 class="section-title">Comp-off History & Decisions</h3>
+            
+            <div class="card shadow-sm border-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr class="bg-white text-dark" style="border-bottom: 2px solid #dee2e6;">
+                                <th class="bg-white text-dark border-bottom-0">ID</th>
+                                <th class="bg-white text-dark border-bottom-0">Employee</th>
+                                <th class="bg-white text-dark border-bottom-0">Date</th>
+                                <th class="bg-white text-dark border-bottom-0">Status</th>
+                                <th class="bg-white text-dark border-bottom-0">Reviewed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set history_items = report_data | selectattr('status', 'ne', 'Pending') | list %}
+                            
+                            {% if history_items %}
+                                {% for req in history_items %}
+                                <tr>
+                                    <td>{{ req.id }}</td>
+                                    <td>{{ req.employee }}</td>
+                                    <td>{{ req.date }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ req.badge_class }} badge-status">
+                                            {{ req.lifecycle_status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ req.reviewed }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        No history found.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mb-5">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary px-4">Back</a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
