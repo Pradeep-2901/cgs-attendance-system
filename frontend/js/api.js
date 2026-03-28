@@ -24,6 +24,10 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
         apiBase = 'http://localhost:5000';
     }
+    // Use override if set (from index.html script tag)
+    else if (window.API_URL_OVERRIDE) {
+        apiBase = window.API_URL_OVERRIDE;
+    }
     
     const url = apiBase + endpoint;
     

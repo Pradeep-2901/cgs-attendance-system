@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CGS GREEN SUSTAINERGY - Login</title>
+    <!-- CRITICAL: Set API URL in production BEFORE any other scripts load -->
+    <script>
+        // Hardcode the Render backend URL for Netlify production
+        const hostname = window.location.hostname;
+        if (hostname.includes('netlify.app')) {
+            window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
+            localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
+            console.log('[CRITICAL] API URL set to:', 'https://cgs-attendance-system.onrender.com');
+        }
+    </script>
     <link rel="stylesheet" href="./css/styles.css">
     <style>
         body {
