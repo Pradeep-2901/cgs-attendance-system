@@ -632,7 +632,9 @@ def login():
             requested_role = request.form.get('role', 'employee')
             is_api_request = False
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Use proper database connection with port handling
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
         
         # Check credentials AND role match
         cursor.execute("SELECT * FROM users WHERE username = %s AND role = %s", 
@@ -642,6 +644,7 @@ def login():
         # Verify password (STRICT: Only hashed passwords allowed)
         if user and check_password_hash(user['password'], password):
             cursor.close()
+            db.close()
             
             # Set session with explicit values
             session.clear()
@@ -673,6 +676,7 @@ def login():
                     return redirect(url_for('dashboard'))
         else:
             cursor.close()
+            db.close()
             if is_api_request:
                 return jsonify({
                     'status': 'error',
