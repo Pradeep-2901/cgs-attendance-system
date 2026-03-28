@@ -3,7 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CGS Attendance System</title>
+    <title>CGS GREEN SUSTAINERGY - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Flash Messages Styles */
+        .flash-message {
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            background: linear-gradient(to right, #1d1e30, #2c2b6d);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            background: url('/static/images/earth.jpg') no-repeat center/cover;
+        }
+
+        .form {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.3);
+            padding: 30px 20px;
+            transition: all 0.6s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transform: translateY(0%);
+            z-index: 1;
+        }
+
+        .form.hidden {
+            transform: translateY(100%);
+            z-index: 0;
+        }
+
+        .form h2 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form input {
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .form button {
+            padding: 12px;
+            background: #6a0dad;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .form button:hover {
+            background: #360d53;
+        }
+
+        .form button:active {
+            transform: scale(0.98);
+        }
+
+        .admin-tab {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 65px;
+            background: rgb(196, 185, 185);
+            color: #6a0dad;
+            border-top-left-radius: 70px;
+            border-top-right-radius: 70px;
+            text-align: center;
+            line-height: 80px;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 3;
+            transition: background 0.3s ease;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+        }
+
+        .admin-tab:hover {
+            background: #706969;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .toggle-eye {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 18px;
+            background: none;
+            border: none;
+        }
+
+        .flash-message {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                height: 90vh;
+            }
+
+            .form h2 {
+                font-size: 22px;
+            }
+
+            .form input, .form button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .admin-tab {
+                height: 70px;
+                font-size: 18px;
+                line-height: 70px;
+                border-top-left-radius: 40px;
+                border-top-right-radius: 40px;
+            }
+        }
+
+        @media (max-height: 500px) {
+            .container {
+                height: 95vh;
+            }
+
+            .admin-tab {
+                height: 60px;
+                line-height: 60px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Employee Login Form -->
+        <form class="form" id="employeeForm" onsubmit="handleLogin(event, 'employee')">
+            <h2>Employee</h2>
+            
+            <div id="employee-message"></div>
+            
+            <input type="text" id="emp-username" placeholder="User name" required>
+            <div class="password-wrapper">
+                <input type="password" id="emp-password" placeholder="Password" required>
+                <span class="toggle-eye" onclick="togglePassword('emp-password', this)">👁️</span>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        
+        <!-- Admin Login Form -->
+        <form class="form hidden" id="adminForm" onsubmit="handleLogin(event, 'admin')">
+            <h2>Admin</h2>
+            
+            <div id="admin-message"></div>
+            
+            <input type="text" id="admin-username" placeholder="User name" required>
+            <div class="password-wrapper">
+                <input type="password" id="admin-password" placeholder="Password" required>
+                <span class="toggle-eye" onclick="togglePassword('admin-password', this)">👁️</span>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        
+        <!-- Toggle Button -->
+        <div class="admin-tab" onclick="toggleForms()">
+            <span id="toggle-text">Admin</span>
+        </div>
+    </div>
+
+    <script>
+        let isEmployeeMode = true;
+
+        // Determine API URL
+        const API_URL = (() => {
+            const hostname = window.location.hostname;
+            if (hostname.includes('netlify.app')) {
+                return 'https://cgs-attendance-system.onrender.com';
+            }
+            if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+                return 'http://localhost:5000';
+            }
+            return 'https://cgs-attendance-system.onrender.com';
+        })();
+
+        /**
+         * Toggle password visibility
+         */
+        function togglePassword(fieldId, element) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                element.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                element.textContent = '👁️';
+            }
+        }
+
+        /**
+         * Toggle between forms
+         */
+        function toggleForms() {
+            isEmployeeMode = !isEmployeeMode;
+            const empForm = document.getElementById('employeeForm');
+            const adminForm = document.getElementById('adminForm');
+            const toggleBtn = document.getElementById('toggle-text');
+            
+            if (isEmployeeMode) {
+                empForm.classList.remove('hidden');
+                adminForm.classList.add('hidden');
+                toggleBtn.textContent = 'Admin';
+            } else {
+                empForm.classList.add('hidden');
+                adminForm.classList.remove('hidden');
+                toggleBtn.textContent = 'Employee';
+            }
+        }
+
+        /**
+         * Handle login
+         */
+        async function handleLogin(e, role) {
+            e.preventDefault();
+            
+            const username = role === 'employee' 
+                ? document.getElementById('emp-username').value 
+                : document.getElementById('admin-username').value;
+            const password = role === 'employee' 
+                ? document.getElementById('emp-password').value 
+                : document.getElementById('admin-password').value;
+            const messageDiv = document.getElementById(`${role}-message`);
+            const button = e.target.querySelector('button');
+            const form = e.target;
+            
+            messageDiv.innerHTML = '';
+            
+            if (!username || !password) {
+                messageDiv.innerHTML = '<div style="color: #f8d7da; background: #f8d7da; padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center; color: #721c24;">Please enter both username and password</div>';
+                return;
+            }
+
+            try {
+                button.disabled = true;
+                button.textContent = 'Loading...';
+
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        role: role
+                    })
+                });
+
+                const data = await response.json();
+                
+                if ((response.ok || response.status === 200) && data.authenticated) {
+                    localStorage.setItem('API_URL', API_URL);
+                    
+                    if (role === 'admin') {
+                        window.location.href = './admin_dashboard.html';
+                    } else {
+                        window.location.href = './dashboard.html';
+                    }
+                } else {
+                    messageDiv.innerHTML = `<div style="background: #f8d7da; padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center; color: #721c24;">❌ ${data.message || 'Invalid credentials'}</div>`;
+                    button.disabled = false;
+                    button.textContent = 'Login';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                messageDiv.innerHTML = '<div style="background: #f8d7da; padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center; color: #721c24;">❌ Connection error. Please try again.</div>';
+                button.disabled = false;
+                button.textContent = 'Login';
+            }
+        }
+
+        /**
+         * Check if already logged in
+         */
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_URL}/api/check_session`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        if (data.role === 'admin') {
+                            window.location.href = './admin_dashboard.html';
+                        } else {
+                            window.location.href = './dashboard.html';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Session check failed, proceeding with login');
+            }
+        });
+    </script>
+</body>
+</html>
     <style>
         * {
             margin: 0;
