@@ -63,5 +63,6 @@ function clearUserSession() {
     localStorage.removeItem('user_name');
 }
 
-// Initialize config on page load
+// Initialize config immediately AND on page load
+initializeConfig();
 document.addEventListener('DOMContentLoaded', initializeConfig);
