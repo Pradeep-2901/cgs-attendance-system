@@ -1,0 +1,31 @@
+[build]
+  # Static site - no build needed
+  base = "frontend"
+  command = "echo 'Static content deployed'"
+  publish = "."
+
+# Redirect all routes to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables for production
+[context.production]
+  environment = { API_URL = "https://cgs-attendance-system.onrender.com" }
+
+# Cache control headers
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "max-age=0, must-revalidate"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "max-age=31536000, immutable"
