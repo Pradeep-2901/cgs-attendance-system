@@ -1558,9 +1558,14 @@ def submit_remote_request():
 
 # ====================== EMPLOYEE ROUTES ======================
 
-@app.route('/api/dashboard')
+@app.route('/api/dashboard', methods=['GET', 'OPTIONS'])
+@csrf.exempt  # CORS preflight requests don't have CSRF tokens
 def api_dashboard():
     """Dashboard API endpoint that doesn't require session (frontend handles auth)"""
+    # Handle OPTIONS preflight request
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = request.args.get('user_id') or session.get('user_id')
     role = request.args.get('role') or session.get('role')
     username = request.args.get('username') or session.get('username')
