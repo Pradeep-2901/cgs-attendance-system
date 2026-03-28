@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/all.min.css') }}" rel="stylesheet">
+    <link href="./static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./static/css/all.min.css" rel="stylesheet">
+    <script>
+        const hostname = window.location.hostname;
+        if (hostname.includes('netlify.app')) {
+            window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
+            localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
+        }
+    </script>
     <style>
         .dashboard-card {
             border: none;
@@ -54,11 +61,145 @@
         }
     </style>
 </head>
-<body class="bg-light">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-semibold d-flex align-items-center" href="{{ url_for('admin_dashboard') }}">
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-users-cog"></i> Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#leave">Leave</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#compoff">Comp-off</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#employees">Employees</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#attendance">Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" id="admin-name"></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="handleLogout(event)">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- Dashboard Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-4">
+                    <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                </h1>
+                <p class="text-center text-muted">Welcome to the admin panel</p>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-5">
+            <div class="col-md-3 mb-3">
+                <div class="card" style="border-top: 4px solid #667eea;">
+                    <div class="card-body text-center">
+                        <h2 id="total-emp">0</h2>
+                        <p class="text-muted">Total Employees</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card" style="border-top: 4px solid #28a745;">
+                    <div class="card-body text-center">
+                        <h2 id="today-att">0</h2>
+                        <p class="text-muted">Today's Attendance</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card" style="border-top: 4px solid #ffc107;">
+                    <div class="card-body text-center">
+                        <h2 id="pending-leave">0</h2>
+                        <p class="text-muted">Pending Leaves</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card" style="border-top: 4px solid #dc3545;">
+                    <div class="card-body text-center">
+                        <h2 id="pending-compoff">0</h2>
+                        <p class="text-muted">Pending Comp-off</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-3">Quick Actions</h3>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users"></i> Manage Employees</h5>
+                        <p class="card-text">Add, edit, or remove employees from the system</p>
+                        <a href="./manage_employees.html" class="btn btn-primary">Go to Employees</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-check"></i> View Attendance</h5>
+                        <p class="card-text">Monitor employee attendance records</p>
+                        <a href="./admin_attendance.html" class="btn btn-primary">View Attendance</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-business-time"></i> Leave Requests</h5>
+                        <p class="card-text">Manage and approve leave requests</p>
+                        <a href="./admin_leave_management.html" class="btn btn-primary">View Requests</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-plus"></i> Comp-off Requests</h5>
+                        <p class="card-text">Approve compensatory off requests</p>
+                        <a href="./admin_compoff.html" class="btn btn-primary">View Comp-off</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleLogout(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('API_URL');
+            window.location.href = './index.html';
+        }
+        
+        window.addEventListener('DOMContentLoaded', function() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = './index.html';
+                return;
+            }
+            
+            const userData = JSON.parse(user);
+            if (userData.role !== 'admin') {
+                window.location.href = './dashboard.html';
+                return;
+            }
+            
+            document.getElementById('admin-name').textContent = userData.name || userData.username;
+        });
+    </script>
+</body>
+</html>
                 <i class="fas fa-users-cog me-2"></i>Admin Panel
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">

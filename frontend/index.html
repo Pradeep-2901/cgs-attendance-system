@@ -4,236 +4,405 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CGS GREEN SUSTAINERGY - Login</title>
-    <!-- CRITICAL: Set API URL in production BEFORE any other scripts load -->
     <script>
-        // Hardcode the Render backend URL for Netlify production
         const hostname = window.location.hostname;
         if (hostname.includes('netlify.app')) {
             window.API_URL_OVERRIDE = 'https://cgs-attendance-system.onrender.com';
             localStorage.setItem('API_URL', 'https://cgs-attendance-system.onrender.com');
-            console.log('[CRITICAL] API URL set to:', 'https://cgs-attendance-system.onrender.com');
         }
     </script>
-    <link rel="stylesheet" href="./static/css/styles.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(to right, #1d1e30, #2c2b6d);
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
             font-family: Arial, sans-serif;
         }
         
         .container {
+            position: relative;
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
-        }
-        
-        .login-box {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            margin-bottom: 20px;
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .logo h1 {
-            margin: 0;
-            color: #333;
-            font-size: 24px;
+            max-width: 450px;
+            height: 550px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            background: url('./static/images/earth.jpg') no-repeat center/cover;
         }
         
         .form {
-            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.35);
+            padding: 30px 20px;
+            transition: all 0.6s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transform: translateY(0%);
+            z-index: 10;
         }
         
-        .form.active {
-            display: block;
+        .form.hidden {
+            transform: translateY(100%);
+            z-index: 1;
         }
         
         .form h2 {
-            color: #667eea;
-            margin-bottom: 20px;
             text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
         
-        .form input {
+        .logo-text {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 13px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            font-weight: 500;
+        }
+        
+        .form-group input {
             width: 100%;
             padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.98);
             font-size: 14px;
-            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
         }
         
         .password-wrapper {
             position: relative;
-            margin: 10px 0;
+            margin: 15px 0;
+        }
+        
+        .password-wrapper label {
+            display: block;
+            color: white;
+            margin-bottom: 6px;
+            font-size: 13px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            font-weight: 500;
         }
         
         .password-wrapper input {
-            padding-right: 40px;
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.98);
+            font-size: 14px;
+        }
+        
+        .password-wrapper input:focus {
+            outline: none;
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
         }
         
         .toggle-eye {
             position: absolute;
             right: 12px;
-            top: 12px;
+            top: 38px;
             cursor: pointer;
             user-select: none;
+            font-size: 18px;
         }
         
         .form button {
             width: 100%;
             padding: 12px;
             margin: 20px 0 10px 0;
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
         .form button:hover {
-            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        
+        .form button:active {
+            transform: translateY(0);
         }
         
         .form button:disabled {
             background: #ccc;
             cursor: not-allowed;
+            transform: none;
         }
         
         .toggle-btn {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .admin-tab {
-            display: inline-block;
-            background: transparent;
-            border: 2px solid #667eea;
-            color: #667eea;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .admin-tab:hover {
-            background: #667eea;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.25);
             color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s;
+            z-index: 20;
         }
         
-        .flash-message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            text-align: center;
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
         }
         
-        .flash-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .flash-error {
+        .error-message {
             background: #f8d7da;
             color: #721c24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
             border: 1px solid #f5c6cb;
         }
         
-        .hidden {
-            display: none !important;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: white;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="login-box">
-            <div class="logo">
-                <h1>CGS GREEN SUSTAINERGY</h1>
-                <p style="color: #999; margin: 5px 0 0 0;">Attendance Management System</p>
+        <!-- Employee Login Form -->
+        <form class="form active" id="employeeForm" onsubmit="handleLogin(event, 'employee')">
+            <div class="logo-text">CGS GREEN SUSTAINERGY</div>
+            <h2>Employee Login</h2>
+            
+            <div id="employee-message"></div>
+            
+            <div class="form-group">
+                <label for="emp-username">Username</label>
+                <input type="text" id="emp-username" placeholder="Enter your username" required>
             </div>
             
-            <!-- Employee Login Form -->
-            <form class="form active" id="employeeForm" onsubmit="handleLogin(event)">
-                <h2>Employee Login</h2>
-                <input type="text" name="username" placeholder="Username" required />
-                <div class="password-wrapper">
-                    <input type="password" name="password" id="employeePassword" placeholder="Password" required />
-                    <span class="toggle-eye" onclick="togglePassword('employeePassword', this)">👁️</span>
-                </div>
-                <input type="hidden" name="role" value="employee">
-                <button type="submit">Login</button>
-            </form>
-            
-            <!-- Admin Login Form -->
-            <form class="form hidden" id="adminForm" onsubmit="handleLogin(event)">
-                <h2>Admin Login</h2>
-                <input type="text" name="username" placeholder="Username" required />
-                <div class="password-wrapper">
-                    <input type="password" name="password" id="adminPassword" placeholder="Password" required />
-                    <span class="toggle-eye" onclick="togglePassword('adminPassword', this)">👁️</span>
-                </div>
-                <input type="hidden" name="role" value="admin">
-                <button type="submit">Login</button>
-            </form>
-            
-            <!-- Toggle Button -->
-            <div class="toggle-btn">
-                <div class="admin-tab" id="toggleBtn" onclick="toggleForms()">
-                    Switch to Admin
-                </div>
+            <div class="password-wrapper">
+                <label for="emp-password">Password</label>
+                <input type="password" id="emp-password" placeholder="Enter your password" required>
+                <span class="toggle-eye" onclick="togglePassword('emp-password', this)">👁️</span>
             </div>
-        </div>
-    </div>
-
-    <script src="./js/config.js"></script>
-    <script src="./js/api.js"></script>
-    <script src="./js/auth.js"></script>
-    <script>
-        // Require no auth (redirect if already logged in)
-        document.addEventListener('DOMContentLoaded', () => {
-            requireNoAuth();
-        });
+            
+            <button type="submit">Login</button>
+            
+            <div id="employee-loading" class="loading">
+                <div class="spinner"></div>
+                <p>Logging in...</p>
+            </div>
+        </form>
         
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.textContent = '🙈';
+        <!-- Admin Login Form -->
+        <form class="form hidden" id="adminForm" onsubmit="handleLogin(event, 'admin')">
+            <div class="logo-text">CGS GREEN SUSTAINERGY</div>
+            <h2>Admin Access</h2>
+            
+            <div id="admin-message"></div>
+            
+            <div class="form-group">
+                <label for="admin-username">Username</label>
+                <input type="text" id="admin-username" placeholder="Enter admin username" required>
+            </div>
+            
+            <div class="password-wrapper">
+                <label for="admin-password">Password</label>
+                <input type="password" id="admin-password" placeholder="Enter admin password" required>
+                <span class="toggle-eye" onclick="togglePassword('admin-password', this)">👁️</span>
+            </div>
+            
+            <button type="submit">Login</button>
+            
+            <div id="admin-loading" class="loading">
+                <div class="spinner"></div>
+                <p>Logging in...</p>
+            </div>
+        </form>
+        
+        <button class="toggle-btn" onclick="toggleForms()">
+            <span id="toggle-text">Admin</span>
+        </button>
+    </div>
+    
+    <script>
+        let isEmployeeMode = true;
+        
+        function togglePassword(fieldId, element) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                element.textContent = '🙈';
             } else {
-                input.type = 'password';
-                icon.textContent = '👁️';
+                field.type = 'password';
+                element.textContent = '👁️';
             }
         }
         
         function toggleForms() {
-            const employeeForm = document.getElementById('employeeForm');
+            isEmployeeMode = !isEmployeeMode;
+            const empForm = document.getElementById('employeeForm');
             const adminForm = document.getElementById('adminForm');
-            const toggleBtn = document.getElementById('toggleBtn');
+            const toggleBtn = document.getElementById('toggle-text');
             
-            if (employeeForm.classList.contains('active')) {
-                employeeForm.classList.remove('active');
-                adminForm.classList.add('active');
-                toggleBtn.textContent = 'Switch to Employee';
+            if (isEmployeeMode) {
+                empForm.classList.remove('hidden');
+                adminForm.classList.add('hidden');
+                toggleBtn.textContent = 'Admin';
             } else {
-                adminForm.classList.remove('active');
-                employeeForm.classList.add('active');
-                toggleBtn.textContent = 'Switch to Admin';
+                empForm.classList.add('hidden');
+                adminForm.classList.remove('hidden');
+                toggleBtn.textContent = 'Employee';
             }
         }
+        
+        async function handleLogin(e, role) {
+            e.preventDefault();
+            
+            const username = role === 'employee' 
+                ? document.getElementById('emp-username').value 
+                : document.getElementById('admin-username').value;
+            const password = role === 'employee' 
+                ? document.getElementById('emp-password').value 
+                : document.getElementById('admin-password').value;
+            const messageDiv = document.getElementById(`${role}-message`);
+            const loadingDiv = document.getElementById(`${role}-loading`);
+            const button = event.target.querySelector('button');
+            
+            messageDiv.innerHTML = '';
+            loadingDiv.style.display = 'none';
+            
+            let apiUrl = window.API_URL_OVERRIDE || localStorage.getItem('API_URL') || 'http://localhost:5000';
+            
+            try {
+                loadingDiv.style.display = 'block';
+                button.disabled = true;
+                
+                const response = await fetch(`${apiUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        role: role
+                    })
+                });
+                
+                loadingDiv.style.display = 'none';
+                button.disabled = false;
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        user_id: data.user_id,
+                        username: data.username,
+                        name: data.employee_name,
+                        role: role
+                    }));
+                    
+                    localStorage.setItem('API_URL', apiUrl);
+                    
+                    if (role === 'admin') {
+                        window.location.href = './admin_dashboard.html';
+                    } else {
+                        window.location.href = './dashboard.html';
+                    }
+                } else {
+                    messageDiv.innerHTML = `<div class="error-message">❌ ${data.message || 'Login failed. Please try again.'}</div>`;
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                button.disabled = false;
+                console.error('Login error:', error);
+                messageDiv.innerHTML = `<div class="error-message">❌ Connection error. Please check your internet.</div>`;
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', function() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                const userData = JSON.parse(user);
+                if (userData.role === 'admin') {
+                    window.location.href = './admin_dashboard.html';
+                } else {
+                    window.location.href = './dashboard.html';
+                }
+            }
+        });
     </script>
 </body>
 </html>
