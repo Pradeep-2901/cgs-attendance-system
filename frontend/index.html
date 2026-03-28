@@ -157,7 +157,7 @@
             </div>
             
             <!-- Employee Login Form -->
-            <form class="form active" id="employeeForm" method="POST">
+            <form class="form active" id="employeeForm" onsubmit="handleLogin(event)">
                 <h2>Employee Login</h2>
                 <input type="text" name="username" placeholder="Username" required />
                 <div class="password-wrapper">
@@ -169,7 +169,7 @@
             </form>
             
             <!-- Admin Login Form -->
-            <form class="form hidden" id="adminForm" method="POST">
+            <form class="form hidden" id="adminForm" onsubmit="handleLogin(event)">
                 <h2>Admin Login</h2>
                 <input type="text" name="username" placeholder="Username" required />
                 <div class="password-wrapper">
