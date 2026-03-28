@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+
+<title>CGS GREEN SUSTAINERGY</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+
+<body>
+
+
+
+<div class="container">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+
+
+<!-- Employee Login Form -->
+
+<form class="form" id="employeeForm" method="POST" action="/login">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<h2>Employee</h2>
+<input type="hidden" name="role" value="employee">
+<input type="text" name="username" placeholder="User name" required />
+<div class="password-wrapper">
+
+<input type="password" name="password" id="employeePassword" placeholder="Password" required />
+<span class="toggle-eye" onclick="togglePassword('employeePassword', this)">👁️</span>
+</div>
+<button type="submit">Login</button>
+</form>
+<!-- Admin Login Form -->
+<form class="form hidden" id="adminForm" method="POST" action="/login">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<h2>Admin</h2>
+<input type="hidden" name="role" value="admin">
+<input type="text" name="username" placeholder="User name" required />
+<div class="password-wrapper">
+<input type="password" name="password" id="adminPassword" placeholder="Password" required />
+<span class="toggle-eye" onclick="togglePassword('adminPassword', this)">👁️</span>
+</div>
+<button type="submit">Login</button>
+</form>
+<!-- Toggle Button -->
+<div class="admin-tab" id="toggleBtn" onclick="toggleForms()">Admin</div>
+</div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
