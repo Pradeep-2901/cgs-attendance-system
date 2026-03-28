@@ -105,6 +105,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def get_db_connection():
     return mysql_connector.connect(
         host=os.getenv('MYSQL_HOST', 'localhost'),
+        port=int(os.getenv('MYSQL_PORT', '3306')),  # Convert to int!
         user=os.getenv('MYSQL_USER', 'root'),
         password=os.getenv('MYSQL_PASSWORD', ''),
         database=os.getenv('MYSQL_DB', 'cgs')
