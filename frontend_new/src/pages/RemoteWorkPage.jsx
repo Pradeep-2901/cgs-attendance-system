@@ -6,7 +6,7 @@ function RemoteWorkPage({ user, onLogout }) {
     <>
       <Navbar user={user} onLogout={onLogout} />
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-        <h1 style={{ color: 'var(--text-primary)', marginBottom: '20px' }}>Remote Work Request</h1>
+        <h1 style={{ color: 'var(--text-primary)', marginBottom: '20px', fontWeight: '700', fontSize: '2rem' }}>Remote Work Request</h1>
         <RemoteWorkModule />
       </div>
     </>

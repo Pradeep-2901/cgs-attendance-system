@@ -6,7 +6,7 @@ function SiteVisitPage({ user, onLogout }) {
     <>
       <Navbar user={user} onLogout={onLogout} />
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-        <h1 style={{ color: 'var(--text-primary)', marginBottom: '20px' }}>Request Site Visit</h1>
+        <h1 style={{ color: 'var(--text-primary)', marginBottom: '20px', fontWeight: '700', fontSize: '2rem' }}>Request Site Visit</h1>
         <SiteVisitModule />
       </div>
     </>
