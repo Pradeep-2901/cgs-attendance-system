@@ -165,21 +165,21 @@ function AttendanceModule({ onRefresh }) {
           <h3>Step 2: Capture Photo (For Verification)</h3>
           
           {!cameraActive && !image && (
-            <button onClick={handleStartCamera} style={{ padding: '10px 20px', background: '#17a2b8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '10px' }} disabled={loading}>
+            <button onClick={handleStartCamera} style={{ padding: '10px 20px', background: '#17a2b8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', marginTop: '10px', fontSize: '14px', fontWeight: '600' }} disabled={loading}>
               📷 Start Camera
             </button>
           )}
 
           {cameraActive && (
-            <div style={{ marginTop: '15px', position: 'relative', borderRadius: '6px', overflow: 'hidden', background: '#000', border: '2px solid #17a2b8' }}>
-              <video ref={videoRef} autoPlay playsInline style={{ width: '100%', height: 'auto', display: 'block' }} />
+            <div style={{ marginTop: '15px', borderRadius: '6px', overflow: 'hidden', background: '#000', border: '2px solid #17a2b8', minHeight: '300px' }}>
+              <video ref={videoRef} autoPlay playsInline muted style={{ width: '100%', height: '300px', objectFit: 'cover', display: 'block', background: '#000' }} />
               <canvas ref={canvasRef} style={{ display: 'none' }} />
               
-              <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button onClick={handleCapturePhoto} style={{ padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }} disabled={loading}>
+              <div style={{ padding: '10px', display: 'flex', gap: '10px', justifyContent: 'center', background: '#1a1a2e' }}>
+                <button onClick={handleCapturePhoto} style={{ padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }} disabled={loading}>
                   📸 Capture Photo
                 </button>
-                <button onClick={stopCamera} style={{ padding: '10px 20px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }} disabled={loading}>
+                <button onClick={stopCamera} style={{ padding: '10px 20px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }} disabled={loading}>
                   ✕ Stop Camera
                 </button>
               </div>
@@ -188,8 +188,8 @@ function AttendanceModule({ onRefresh }) {
 
           {image && (
             <div style={{ marginTop: '15px', padding: '15px', background: '#d4edda', borderRadius: '6px', border: '1px solid #c3e6cb', textAlign: 'center' }}>
-              <p style={{ color: '#155724', marginBottom: '10px' }}>✓ Photo captured and ready for verification</p>
-              <button onClick={() => setImage(null)} style={{ padding: '8px 16px', background: '#667eea', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+              <p style={{ color: '#155724', marginBottom: '10px', fontWeight: '600' }}>✓ Photo captured and ready for verification</p>
+              <button onClick={() => setImage(null)} style={{ padding: '8px 16px', background: '#667eea', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
                 📷 Retake Photo
               </button>
             </div>
