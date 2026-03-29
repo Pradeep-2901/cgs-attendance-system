@@ -345,7 +345,14 @@
                 const data = await response.json();
                 
                 if ((response.ok || response.status === 200) && data.authenticated) {
+                    // Save user data and API URL to localStorage
                     localStorage.setItem('API_URL', API_URL);
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        user_id: data.user_id,
+                        username: data.username,
+                        name: data.name,
+                        role: data.role
+                    }));
                     
                     if (role === 'admin') {
                         window.location.href = './admin_dashboard.html';

@@ -677,7 +677,7 @@ def login():
                     return redirect(url_for('admin_dashboard'))
                 else:
                     flash(f'Welcome {user["name"] or username}!', 'success')
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('mark_attendance'))
         else:
             cursor.close()
             db.close()
@@ -1451,7 +1451,7 @@ def request_visit():
         return render_template('request_visit.html', sites=sites, my_requests=my_requests)
     except Exception as e:
         flash(f'Error loading visit request page: {str(e)}', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('mark_attendance'))
 
 @app.route('/request-visit/submit', methods=['POST'])
 @login_required
@@ -1694,7 +1694,7 @@ def mark_attendance():
     except Exception as e:
         print(f"Mark attendance error: {e}")
         flash(f'Error: {str(e)}', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('mark_attendance'))
 
 @app.route('/checkin', methods=['POST', 'OPTIONS'])
 @csrf.exempt
@@ -2030,7 +2030,7 @@ def view_attendance():
     except Exception as e:
         print(f"View attendance error: {e}")
         flash(f'Error: {str(e)}', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('mark_attendance'))
 
 @app.route('/request_geofence', methods=['POST'])
 @employee_required
@@ -2111,7 +2111,7 @@ def myleave():
     except Exception as e:
         print(f"MyLeave error: {e}")
         flash('Failed to load leave page','error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('mark_attendance'))
 
 @app.route('/request_leave', methods=['POST'])
 @employee_required
@@ -2564,7 +2564,7 @@ def request_compoff():
     except Exception as e:
         print(f"Request comp-off error: {e}")
         flash('Failed to load comp-off page','error')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('mark_attendance'))
 
 # ====================== COMP-OFF ROUTES (Admin) ======================
 
