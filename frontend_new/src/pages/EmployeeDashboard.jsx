@@ -27,6 +27,10 @@ function EmployeeDashboard({ user, onLogout }) {
     }
   };
 
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'attendance':
@@ -42,135 +46,181 @@ function EmployeeDashboard({ user, onLogout }) {
       case 'geofence':
         return <GeofenceModule />;
       default:
-        return <DashboardHome data={dashboardData} user={user} />;
+        return <DashboardHome data={dashboardData} user={user} loading={loading} onNavigate={handleNavigate} />;
     }
   };
 
   return (
-    <div className={styles.container}>
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.navContent}>
-          <div className={styles.logo}>📍 CGS Attendance</div>
-          <div className={styles.welcome}>Hi, {user?.name}</div>
-          <button className={styles.logoutBtn} onClick={onLogout}>Logout</button>
-        </div>
-      </nav>
-
-      {/* Sidebar */}
-      <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <nav className={styles.menu}>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'dashboard' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('dashboard')}
-            >
-              📊 Dashboard
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'attendance' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('attendance')}
-            >
-              📍 Attendance
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'leave' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('leave')}
-            >
-              🏖️ Leave
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'compoff' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('compoff')}
-            >
-              ⏰ Comp-off
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'remote' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('remote')}
-            >
-              🏠 Remote Work
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'visit' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('visit')}
-            >
-              🗺️ Site Visits
-            </button>
-            <button
-              className={`${styles.menuItem} ${currentPage === 'geofence' ? styles.active : ''}`}
-              onClick={() => setCurrentPage('geofence')}
-            >
-              🚩 Geofencing
-            </button>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className={styles.mainContent}>
-          {loading && currentPage === 'dashboard' ? (
-            <div className={styles.loading}>Loading...</div>
-          ) : (
-            renderPage()
-          )}
-        </main>
-      </div>
-    </div>
+    <main>
+      {renderPage()}
+    </main>
   );
 }
 
-function DashboardHome({ data, user }) {
-  const styles_ = {
-    card: { background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
-    cardTitle: { fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '15px' },
-    cardValue: { fontSize: '32px', fontWeight: '700', color: '#667eea', margin: '10px 0' },
-    cardSubtitle: { fontSize: '12px', color: '#999' }
+function DashboardHome({ data, user, loading, onNavigate }) {
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    setCurrentDate(
+      new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    );
+  }, []);
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'Not checked in';
+    try {
+      const time = new Date(timeString);
+      return time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch {
+      return timeString;
+    }
   };
 
+  if (loading) {
+    return (
+      <div className={styles.dashboardContainer}>
+        <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px', color: '#666' }}>
+          Loading your dashboard...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Welcome, {user?.name}! Welcome back!</h1>
-      <p style={{ color: '#999', marginTop: '10px' }}>Here's your attendance overview</p>
+    <div className={styles.dashboardContainer}>
+      {/* Welcome Section */}
+      <div className={styles.welcomeSection}>
+        <h1>Welcome, {user?.name || 'Employee'}!</h1>
+        <p>Employee Dashboard</p>
+        <p className={styles.currentDate}>{currentDate}</p>
+      </div>
 
-      {data && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '30px' }}>
-          <div style={styles_.card}>
-            <div style={styles_.cardTitle}>Today's Status</div>
-            <div style={styles_.cardValue}>{data.today_attendance?.check_in_time ? 'Checked In' : 'Pending'}</div>
-            <div style={styles_.cardSubtitle}>Check-in: {data.today_attendance?.check_in_time || 'Not checked in'}</div>
+      {/* Today's Attendance Status */}
+      {data?.today_attendance ? (
+        <div className={styles.statusCard}>
+          <h3>📅 Today's Attendance Status</h3>
+          <div className={styles.statusInfo}>
+            <span className={styles.statusLabel}>Check-in:</span>
+            <span className={styles.timeDisplay}>
+              {formatTime(data.today_attendance.check_in_time)}
+            </span>
           </div>
-
-          <div style={styles_.card}>
-            <div style={styles_.cardTitle}>Leave Balance</div>
-            <div style={styles_.cardValue}>{data.leave_balance?.vacation_remaining || 0}</div>
-            <div style={styles_.cardSubtitle}>Vacation days remaining</div>
+          <div className={styles.statusInfo}>
+            <span className={styles.statusLabel}>Check-out:</span>
+            <span className={styles.timeDisplay}>
+              {formatTime(data.today_attendance.check_out_time)}
+            </span>
           </div>
-
-          <div style={styles_.card}>
-            <div style={styles_.cardTitle}>Comp-Off Balance</div>
-            <div style={styles_.cardValue}>{data.compoff_balance || 0}</div>
-            <div style={styles_.cardSubtitle}>Available comp-off days</div>
-          </div>
-
-          <div style={styles_.card}>
-            <div style={styles_.cardTitle}>Attendance Rate</div>
-            <div style={styles_.cardValue}>{data.attendance_rate || 0}%</div>
-            <div style={styles_.cardSubtitle}>This month</div>
-          </div>
+          {data.today_attendance.check_in_address && (
+            <div className={styles.statusInfo}>
+              <span style={{ fontSize: '0.9em', color: '#666' }}>
+                Location: {data.today_attendance.check_in_address.substring(0, 50)}...
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className={styles.statusCard}>
+          <h3>📅 Today's Status</h3>
+          <p>No attendance marked yet today.</p>
         </div>
       )}
 
-      <div style={{ marginTop: '40px', padding: '20px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <h3>Quick Actions</h3>
-        <p style={{ color: '#999', fontSize: '14px', marginTop: '10px' }}>Use the sidebar menu to:
-        </p>
-        <ul style={{ marginTop: '15px', lineHeight: '2', color: '#666' }}>
-          <li>✓ Mark attendance with location</li>
-          <li>✓ Request leave or comp-off</li>
-          <li>✓ Request remote work</li>
-          <li>✓ Request site visits</li>
-          <li>✓ Update geofencing</li>
-        </ul>
+      {/* Compensatory Off Balance */}
+      <div className={`${styles.statusCard} ${styles.compOffCard}`}>
+        <div className={styles.compOffContent}>
+          <div className={styles.compOffInfo}>
+            <h3>🏦 Compensatory Off Balance</h3>
+            <div className={styles.compOffBalance}>
+              {data?.compoff_balance || 0}
+              <span className={styles.compOffDays}> day(s)</span>
+            </div>
+            <p className={styles.compOffSubtitle}>
+              Earn balance by working approved non-working days.
+            </p>
+          </div>
+          <div className={styles.compOffActions}>
+            <button
+              className={`${styles.btnCompact}`}
+              onClick={() => onNavigate('compoff')}
+            >
+              <span>➕</span>Request Comp-off
+            </button>
+            <button
+              className={`${styles.btnCompact} ${styles.btnCompactHistory}`}
+              onClick={() => onNavigate('attendance')}
+            >
+              <span>📜</span>History
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons Grid */}
+      <div className={styles.actionButtonsGrid}>
+        <button
+          className={`${styles.btnLarge} ${styles.btnAttendance}`}
+          onClick={() => onNavigate('attendance')}
+        >
+          <span>📸</span>
+          Mark Attendance
+        </button>
+        <button
+          className={`${styles.btnLarge} ${styles.btnRecords}`}
+          onClick={() => onNavigate('attendance')}
+        >
+          <span>📊</span>
+          View Records
+        </button>
+        <button
+          className={`${styles.btnLarge} ${styles.btnLeave}`}
+          onClick={() => onNavigate('leave')}
+        >
+          <span>🛫</span>
+          My Leave
+        </button>
+        <button
+          className={`${styles.btnLarge} ${styles.btnCompoff}`}
+          onClick={() => onNavigate('compoff')}
+        >
+          <span>⏱️</span>
+          Request Comp-off
+        </button>
+        <button
+          className={`${styles.btnLarge} ${styles.btnVisit}`}
+          onClick={() => onNavigate('visit')}
+        >
+          <span>🗺️</span>
+          Request Site Visit
+        </button>
+        <button
+          className={`${styles.btnLarge} ${styles.btnRemote}`}
+          onClick={() => onNavigate('remote')}
+        >
+          <span>🏠</span>
+          Remote
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div className={styles.footerSection}>
+        <button
+          className={styles.logoutLink}
+          onClick={() => {/* Handle logout */}}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          🚪 Logout via navbar above
+        </button>
       </div>
     </div>
   );

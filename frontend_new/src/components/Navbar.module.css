@@ -1,0 +1,170 @@
+.navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar__content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  gap: 20px;
+}
+
+/* Left Section */
+.navbar__left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.navbar__logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  padding: 0 10px;
+  margin-right: 10px;
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation Buttons Container */
+.navbar__buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Base Button Styles */
+.navbar__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.navbar__btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.navbar__btn:active {
+  transform: translateY(0);
+}
+
+.navbar__icon {
+  font-size: 14px;
+  display: inline-block;
+}
+
+.navbar__label {
+  display: inline;
+  letter-spacing: 0.2px;
+}
+
+/* Right Section */
+.navbar__right {
+  display: flex;
+  align-items: center;
+}
+
+/* Logout Button - Distinct styling */
+.navbar__logout {
+  background: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.navbar__logout:hover {
+  background: rgba(220, 53, 69, 0.35);
+  border-color: rgba(220, 53, 69, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar__content {
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .navbar__left {
+    gap: 12px;
+  }
+
+  .navbar__logo {
+    font-size: 14px;
+    padding: 0 8px;
+    margin-right: 8px;
+    border-right-width: 1px;
+  }
+
+  .navbar__btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .navbar__icon {
+    font-size: 13px;
+  }
+
+  .navbar__label {
+    display: inline;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar__content {
+    padding: 0 8px;
+    gap: 8px;
+  }
+
+  .navbar__left {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .navbar__logo {
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    border-right: none;
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .navbar__buttons {
+    order: 2;
+    gap: 4px;
+  }
+
+  .navbar__btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .navbar__label {
+    display: none;
+  }
+
+  .navbar__icon {
+    font-size: 12px;
+  }
+}

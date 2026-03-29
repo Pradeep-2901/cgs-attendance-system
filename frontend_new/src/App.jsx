@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext from './context/AuthContext';
 import { apiCall } from './services/api';
 
 import LoginPage from './pages/LoginPage';
-import EmployeeDashboard from './pages/EmployeeDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import DashboardPage from './pages/DashboardPage';
+import RecordsPage from './pages/RecordsPage';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState('login');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -17,7 +17,6 @@ function App() {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-        setCurrentPage(JSON.parse(storedUser).role === 'admin' ? 'admin-dashboard' : 'employee-dashboard');
       } catch (e) {
         console.error('Invalid stored user:', e);
         localStorage.removeItem('currentUser');
@@ -29,7 +28,6 @@ function App() {
   const handleLogin = (userData) => {
     localStorage.setItem('currentUser', JSON.stringify(userData));
     setUser(userData);
-    setCurrentPage(userData.role === 'admin' ? 'admin-dashboard' : 'employee-dashboard');
   };
 
   const handleLogout = async () => {
@@ -41,7 +39,6 @@ function App() {
       localStorage.removeItem('currentUser');
       localStorage.removeItem('API_URL');
       setUser(null);
-      setCurrentPage('login');
     }
   };
 
@@ -50,15 +47,21 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, handleLogout }}>
-      {currentPage === 'login' && <LoginPage onLogin={handleLogin} />}
-      {currentPage === 'employee-dashboard' && (
-        <EmployeeDashboard user={user} onLogout={handleLogout} setPage={setCurrentPage} />
-      )}
-      {currentPage === 'admin-dashboard' && (
-        <AdminDashboard user={user} onLogout={handleLogout} setPage={setCurrentPage} />
-      )}
-    </AuthContext.Provider>
+    <BrowserRouter>
+      <AuthContext.Provider value={{ user, setUser, handleLogout }}>
+        <Routes>
+          {/* Login Page - No navbar */}
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginPage onLogin={handleLogin} />} />
+          
+          {/* Protected Pages - With Navbar */}
+          <Route path="/dashboard" element={user ? <DashboardPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+          <Route path="/records" element={user ? <RecordsPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+          
+          {/* Catch all - redirect to home */}
+          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
+        </Routes>
+      </AuthContext.Provider>
+    </BrowserRouter>
   );
 }
 

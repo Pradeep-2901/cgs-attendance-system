@@ -81,7 +81,7 @@ function LoginPage({ onLogin }) {
                 onClick={togglePasswordVisibility}
                 disabled={loading}
               >
-                {showPassword ? '�' : '👁️'}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
             <button type="submit" disabled={loading}>

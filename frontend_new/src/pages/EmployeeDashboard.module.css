@@ -1,51 +1,330 @@
+/* Main Container */
 .container {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
   background: #f5f7fa;
 }
 
-.navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 15px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* Dashboard Container */
+.dashboardContainer {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  width: 100%;
 }
 
-.navContent {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.welcome {
-  flex: 1;
+/* Welcome Section */
+.welcomeSection {
   text-align: center;
-  font-size: 14px;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.welcomeSection h1 {
+  margin: 0 0 8px;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.welcomeSection p {
+  margin: 6px 0;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+.currentDate {
+  font-size: 1.05rem;
+  margin-top: 8px;
   opacity: 0.9;
 }
 
-.logoutBtn {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  cursor: pointer;
+/* Status Cards */
+.statusCard {
+  background: #f8f9fa;
+  padding: 22px;
+  border-radius: 12px;
+  margin: 20px 0;
+  border: 1px solid #e3e6ef;
+  position: relative;
+}
+
+.statusCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #28a745, #34ce57);
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.statusCard h3 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.statusInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  padding: 6px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.statusInfo:last-child {
+  border-bottom: none;
+}
+
+.statusLabel {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.timeDisplay {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #28a745;
+}
+
+/* Comp-off Card */
+.compOffCard {
+  border: 1px solid #d5e4ff !important;
+  background: #f3f8ff !important;
+  margin-top: 28px;
+}
+
+.compOffCard::before {
+  background: linear-gradient(180deg, #0d6efd, #3a7bd5) !important;
+}
+
+.compOffContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.compOffInfo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.compOffInfo h3 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.3px;
+}
+
+.compOffBalance {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0d6efd;
+  line-height: 1;
+  margin: 0 0 8px;
+}
+
+.compOffDays {
+  font-size: 1rem;
   font-weight: 500;
+  color: #4a5568;
+}
+
+.compOffSubtitle {
+  color: #51637a;
+  font-size: 0.75rem;
+  letter-spacing: 0.4px;
+  margin-top: 6px;
+}
+
+.compOffActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Buttons */
+.btnCompact {
+  background: #0d6efd;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.25s;
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+}
+
+.btnCompact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.35);
+}
+
+.btnCompactHistory {
+  background: #6366f1;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+}
+
+.btnCompactHistory:hover {
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+/* Action Buttons Grid */
+.actionButtonsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px;
+  margin: 30px 0;
+}
+
+.btnLarge {
+  padding: 25px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  min-height: 120px;
+}
+
+.btnLarge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btnLarge span {
+  font-size: 28px;
+}
+
+.btnAttendance {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+}
+
+.btnRecords {
+  background: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+}
+
+.btnLeave {
+  background: linear-gradient(45deg, #ff9966 0%, #ff5e62 100%);
+}
+
+.btnCompoff {
+  background: linear-gradient(45deg, #0d6efd 0%, #3a7bd5 100%);
+}
+
+.btnVisit {
+  background: linear-gradient(45deg, #10b981 0%, #34d399 100%);
+}
+
+.btnRemote {
+  background: linear-gradient(45deg, #8e2de2 0%, #4a00e0 100%);
+}
+
+/* Footer */
+.footerSection {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.logoutLink {
+  color: #dc3545;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.3s;
+}
+
+.logoutLink:hover {
+  color: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboardContainer {
+    margin: 20px auto;
+    padding: 12px;
+  }
+
+  .welcomeSection {
+    padding: 20px;
+  }
+
+  .welcomeSection h1 {
+    font-size: 1.8rem;
+  }
+
+  .actionButtonsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .btnLarge {
+    min-height: 100px;
+    padding: 15px;
+  }
+
+  .btnLarge span {
+    font-size: 24px;
+  }
+
+  .compOffContent {
+    flex-direction: column;
+  }
+
+  .compOffActions {
+    width: 100%;
+  }
+
+  .compOffBalance {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .actionButtonsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcomeSection h1 {
+    font-size: 1.5rem;
+  }
+
+  .compOffBalance {
+    font-size: 1.6rem;
+  }
 }
 
 .logoutBtn:hover {
