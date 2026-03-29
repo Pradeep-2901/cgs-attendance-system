@@ -83,6 +83,18 @@
 .navbar__right {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+/* Theme Toggle Button */
+.navbar__theme {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.navbar__theme:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Logout Button - Distinct styling */

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthContext from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { apiCall } from './services/api';
 
 import LoginPage from './pages/LoginPage';
@@ -47,21 +48,23 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <AuthContext.Provider value={{ user, setUser, handleLogout }}>
-        <Routes>
-          {/* Login Page - No navbar */}
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginPage onLogin={handleLogin} />} />
-          
-          {/* Protected Pages - With Navbar */}
-          <Route path="/dashboard" element={user ? <DashboardPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
-          <Route path="/records" element={user ? <RecordsPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
-          
-          {/* Catch all - redirect to home */}
-          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
-        </Routes>
-      </AuthContext.Provider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthContext.Provider value={{ user, setUser, handleLogout }}>
+          <Routes>
+            {/* Login Page - No navbar */}
+            <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginPage onLogin={handleLogin} />} />
+            
+            {/* Protected Pages - With Navbar */}
+            <Route path="/dashboard" element={user ? <DashboardPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/records" element={user ? <RecordsPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
+          </Routes>
+        </AuthContext.Provider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
