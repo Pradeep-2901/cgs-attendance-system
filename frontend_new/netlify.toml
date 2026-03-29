@@ -1,0 +1,38 @@
+[build]
+  # Build command
+  command = "npm run build"
+  # Publish directory (where build output goes)
+  publish = "dist"
+
+# Redirect all 404s to index.html for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache headers for static assets
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Environment variables
+[context.production]
+  environment = { VITE_API_URL = "https://cgs-attendance-system.onrender.com" }
+
+[context.deploy-preview]
+  environment = { VITE_API_URL = "http://localhost:5000" }
