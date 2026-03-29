@@ -121,43 +121,41 @@ function EmployeeDashboard({ user, onLogout }) {
 
 function DashboardHome({ data, user }) {
   const styles_ = {
-    dashboard: 'padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); min-height: 100vh;',
-    grid: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;',
-    card: 'background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);',
-    cardTitle: 'font-size: 16px; font-weight: 600; color: #333; margin-bottom: 15px;',
-    cardValue: 'font-size: 32px; font-weight: 700; color: #667eea; margin: 10px 0;',
-    cardSubtitle: 'font-size: 12px; color: #999;'
+    card: { background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
+    cardTitle: { fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '15px' },
+    cardValue: { fontSize: '32px', fontWeight: '700', color: '#667eea', margin: '10px 0' },
+    cardSubtitle: { fontSize: '12px', color: '#999' }
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Welcome, {user?.name}! 👋</h1>
+      <h1>Welcome, {user?.name}! Welcome back!</h1>
       <p style={{ color: '#999', marginTop: '10px' }}>Here's your attendance overview</p>
 
       {data && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '30px' }}>
-          <div style={{ ...JSON.parse(styles_.card) }}>
-            <div style={{ ...JSON.parse(styles_.cardTitle) }}>Today's Status</div>
-            <div style={{ ...JSON.parse(styles_.cardValue) }}>{data.today_attendance?.check_in_time ? '✓ Checked In' : '⏳ Pending'}</div>
-            <div style={{ ...JSON.parse(styles_.cardSubtitle) }}>Check-in: {data.today_attendance?.check_in_time || 'Not checked in'}</div>
+          <div style={styles_.card}>
+            <div style={styles_.cardTitle}>Today's Status</div>
+            <div style={styles_.cardValue}>{data.today_attendance?.check_in_time ? 'Checked In' : 'Pending'}</div>
+            <div style={styles_.cardSubtitle}>Check-in: {data.today_attendance?.check_in_time || 'Not checked in'}</div>
           </div>
 
-          <div style={{ ...JSON.parse(styles_.card) }}>
-            <div style={{ ...JSON.parse(styles_.cardTitle) }}>Leave Balance</div>
-            <div style={{ ...JSON.parse(styles_.cardValue) }}>{data.leave_balance?.vacation_remaining || 0}</div>
-            <div style={{ ...JSON.parse(styles_.cardSubtitle) }}>Vacation days remaining</div>
+          <div style={styles_.card}>
+            <div style={styles_.cardTitle}>Leave Balance</div>
+            <div style={styles_.cardValue}>{data.leave_balance?.vacation_remaining || 0}</div>
+            <div style={styles_.cardSubtitle}>Vacation days remaining</div>
           </div>
 
-          <div style={{ ...JSON.parse(styles_.card) }}>
-            <div style={{ ...JSON.parse(styles_.cardTitle) }}>Comp-Off Balance</div>
-            <div style={{ ...JSON.parse(styles_.cardValue) }}>{data.compoff_balance || 0}</div>
-            <div style={{ ...JSON.parse(styles_.cardSubtitle) }}>Available comp-off days</div>
+          <div style={styles_.card}>
+            <div style={styles_.cardTitle}>Comp-Off Balance</div>
+            <div style={styles_.cardValue}>{data.compoff_balance || 0}</div>
+            <div style={styles_.cardSubtitle}>Available comp-off days</div>
           </div>
 
-          <div style={{ ...JSON.parse(styles_.card) }}>
-            <div style={{ ...JSON.parse(styles_.cardTitle) }}>Attendance Rate</div>
-            <div style={{ ...JSON.parse(styles_.cardValue) }}>{data.attendance_rate || 0}%</div>
-            <div style={{ ...JSON.parse(styles_.cardSubtitle) }}>This month</div>
+          <div style={styles_.card}>
+            <div style={styles_.cardTitle}>Attendance Rate</div>
+            <div style={styles_.cardValue}>{data.attendance_rate || 0}%</div>
+            <div style={styles_.cardSubtitle}>This month</div>
           </div>
         </div>
       )}
