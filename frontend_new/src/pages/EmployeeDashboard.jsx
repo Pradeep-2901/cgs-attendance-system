@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../services/api';
 import styles from './EmployeeDashboard.module.css';
 
-import AttendanceModule from '../components/employee/AttendanceModule';
-import LeaveModule from '../components/employee/LeaveModule';
-import { CompOffModule, RemoteWorkModule, SiteVisitModule, GeofenceModule } from '../components/employee/index';
-
 function EmployeeDashboard({ user, onLogout }) {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,32 +24,22 @@ function EmployeeDashboard({ user, onLogout }) {
     }
   };
 
-  const handleNavigate = (page) => {
-    setCurrentPage(page);
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'attendance':
-        return <AttendanceModule onRefresh={loadDashboardData} />;
-      case 'leave':
-        return <LeaveModule />;
-      case 'compoff':
-        return <CompOffModule />;
-      case 'remote':
-        return <RemoteWorkModule />;
-      case 'visit':
-        return <SiteVisitModule />;
-      case 'geofence':
-        return <GeofenceModule />;
-      default:
-        return <DashboardHome data={dashboardData} user={user} loading={loading} onNavigate={handleNavigate} />;
-    }
+  const handleFeatureNavigation = (feature) => {
+    // Navigate to feature-specific pages
+    const featureMap = {
+      'attendance': '/attendance',
+      'leave': '/leave',
+      'compoff': '/compoff',
+      'remote': '/remote',
+      'visit': '/visit',
+      'geofence': '/geofence'
+    };
+    navigate(featureMap[feature] || '/dashboard');
   };
 
   return (
     <main>
-      {renderPage()}
+      <DashboardHome data={dashboardData} user={user} loading={loading} onNavigate={handleFeatureNavigation} />
     </main>
   );
 }
@@ -209,17 +196,6 @@ function DashboardHome({ data, user, loading, onNavigate }) {
         >
           <span>🏠</span>
           Remote
-        </button>
-      </div>
-
-      {/* Footer */}
-      <div className={styles.footerSection}>
-        <button
-          className={styles.logoutLink}
-          onClick={() => {/* Handle logout */}}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-        >
-          🚪 Logout via navbar above
         </button>
       </div>
     </div>

@@ -43,7 +43,7 @@
   opacity: 0.9;
 }
 
-/* Status Cards */
+/* Status Cards - Dark Mode Fix */
 .statusCard {
   background: var(--card-bg);
   padding: 22px;
@@ -88,8 +88,9 @@
 }
 
 .statusLabel {
-  color: var(--text-secondary);
+  color: var(--text-light-grey);
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .timeDisplay {
@@ -98,12 +99,19 @@
   color: #28a745;
 }
 
-/* Comp-off Card */
+/* Comp-off Card - Dark Mode Adaptive */
 .compOffCard {
   border: 1px solid #d5e4ff !important;
   background: #f3f8ff !important;
   margin-top: 28px;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .compOffCard {
+    border-color: #2c5aa0 !important;
+    background: #1a3a5c !important;
+  }
 }
 
 .compOffCard::before {
@@ -142,11 +150,11 @@
 .compOffDays {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-light-grey);
 }
 
 .compOffSubtitle {
-  color: var(--text-secondary);
+  color: var(--text-light-grey);
   font-size: 0.75rem;
   letter-spacing: 0.4px;
   margin-top: 6px;

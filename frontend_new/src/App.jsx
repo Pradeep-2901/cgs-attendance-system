@@ -7,6 +7,12 @@ import { apiCall } from './services/api';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import RecordsPage from './pages/RecordsPage';
+import AttendancePage from './pages/AttendancePage';
+import LeavePage from './pages/LeavePage';
+import CompOffPage from './pages/CompOffPage';
+import RemoteWorkPage from './pages/RemoteWorkPage';
+import SiteVisitPage from './pages/SiteVisitPage';
+import GeofencePage from './pages/GeofencePage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -55,9 +61,17 @@ function App() {
             {/* Login Page - No navbar */}
             <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginPage onLogin={handleLogin} />} />
             
-            {/* Protected Pages - With Navbar */}
+            {/* Protected Dashboard Pages - With Navbar */}
             <Route path="/dashboard" element={user ? <DashboardPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
             <Route path="/records" element={user ? <RecordsPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            
+            {/* Feature Pages - With Navbar */}
+            <Route path="/attendance" element={user ? <AttendancePage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/leave" element={user ? <LeavePage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/compoff" element={user ? <CompOffPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/remote" element={user ? <RemoteWorkPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/visit" element={user ? <SiteVisitPage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
+            <Route path="/geofence" element={user ? <GeofencePage user={user} onLogout={handleLogout} /> : <Navigate to="/" />} />
             
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} />} />
