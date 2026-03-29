@@ -1,8 +1,10 @@
 [build]
   # Build command
-  command = "npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   # Publish directory (where build output goes)
   publish = "dist"
+  # Node version
+  node_version = "22.17.0"
 
 # Redirect all 404s to index.html for SPA routing
 [[redirects]]
