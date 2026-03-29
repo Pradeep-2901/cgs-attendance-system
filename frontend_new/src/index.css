@@ -19,7 +19,25 @@
   --text-secondary: #666666;
   --navbar-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --card-bg: #f8f9fa;
+  --card-container-bg: #ffffff;
+  --card-border: #e0e0e0;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --border-color: #e3e6ef;
+}
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --text-primary: #ffffff;
+    --text-secondary: #d0d0d0;
+    --card-bg: #16213e;
+    --card-container-bg: #0f1b2e;
+    --card-border: #2c3e50;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --border-color: #2c3e50;
+  }
 }
 
 * {

@@ -60,7 +60,7 @@ function LeaveModule() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '30px' }}>
         {/* Request Form */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <div style={{ background: 'var(--card-container-bg)', padding: '20px', borderRadius: '12px', boxShadow: 'var(--card-shadow)', border: '1px solid var(--card-border)', transition: 'background-color 0.3s ease, border-color 0.3s ease' }}>
           <h3>Request Leave</h3>
           {message && (
             <div style={{ background: message.includes('✓') ? '#d4edda' : '#f8d7da', color: message.includes('✓') ? '#155724' : '#721c24', padding: '10px',  borderRadius: '6px', marginTop: '10px', fontSize: '12px' }}>
@@ -85,7 +85,7 @@ function LeaveModule() {
         </div>
 
         {/* Leave History */}
-        <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        <div style={{ background: 'var(--card-container-bg)', padding: '20px', borderRadius: '12px', boxShadow: 'var(--card-shadow)', border: '1px solid var(--card-border)', transition: 'background-color 0.3s ease, border-color 0.3s ease' }}>
           <h3>Your Requests</h3>
           <div style={{ marginTop: '15px', maxHeight: '300px', overflowY: 'auto' }}>
             {leaveRequests.length === 0 ? (

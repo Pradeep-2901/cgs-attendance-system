@@ -76,7 +76,7 @@ function AttendanceModule({ onRefresh }) {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+      <div style={{ background: 'var(--card-container-bg)', padding: '30px', borderRadius: '12px', boxShadow: 'var(--card-shadow)', border: '1px solid var(--card-border)', transition: 'background-color 0.3s ease, border-color 0.3s ease' }}>
         <h2>📍 Mark Attendance</h2>
         
         {message && (

@@ -34,7 +34,7 @@ export function GeofenceModule() {
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', background: 'white', padding: '20px', borderRadius: '12px' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', background: 'var(--card-container-bg)', padding: '20px', borderRadius: '12px', border: '1px solid var(--card-border)', boxShadow: 'var(--card-shadow)', transition: 'background-color 0.3s ease, border-color 0.3s ease' }}>
       <h2>Geofence Request</h2>
       {message && <div style={{ background: '#d4edda', color: '#155724', padding: '10px', borderRadius: '6px', marginTop: '10px' }}>{message}</div>}
       <button onClick={handleGetLocation} style={{ width: '100%', padding: '10px', marginTop: '15px', background: '#17a2b8', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
