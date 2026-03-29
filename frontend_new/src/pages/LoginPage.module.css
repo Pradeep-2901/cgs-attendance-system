@@ -96,7 +96,7 @@
   width: 100%;
 }
 
-.form button {
+.form button:not(.toggleEye) {
   padding: 12px;
   background: #6a0dad;
   color: white;
@@ -109,11 +109,11 @@
   transition: background 0.3s ease;
 }
 
-.form button:hover {
+.form button:not(.toggleEye):hover {
   background: #360d53;
 }
 
-.form button:disabled {
+.form button:not(.toggleEye):disabled {
   background: #999;
   cursor: not-allowed;
 }
@@ -121,11 +121,19 @@
 .passwordWrapper {
   position: relative;
   width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .passwordWrapper input {
   width: 100%;
-  padding-right: 40px;
+  padding-right: 45px;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+  font-size: 16px;
+  padding: 12px;
+  margin: 10px 0;
 }
 
 .toggleEye {
@@ -139,9 +147,14 @@
   user-select: none;
   opacity: 0.9;
   border: none;
-  background: none;
+  background: none !important;
   padding: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
 }
 
 .toggleEye:hover {
