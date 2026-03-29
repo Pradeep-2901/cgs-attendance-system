@@ -3,7 +3,7 @@ import { apiCall } from '../services/api';
 import styles from './LoginPage.module.css';
 
 function LoginPage({ onLogin }) {
-  const [role, setRole] = useState('employee');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ function LoginPage({ onLogin }) {
       const response = await apiCall('/login', 'POST', {
         username,
         password,
-        role
+        role: isAdmin ? 'admin' : 'employee'
       });
 
       if (response.authenticated) {
@@ -39,112 +39,103 @@ function LoginPage({ onLogin }) {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleRole = () => {
+    setIsAdmin(!isAdmin);
+    setUsername('');
+    setPassword('');
+    setError('');
+  };
+
   return (
-    <div className={styles.container}>
-      <div className={styles.wrapper}>
-        {/* Left Panel - Design */}
-        <div className={styles.leftPanel}>
-          <div className={styles.content}>
-            <div className={styles.logo}>📍</div>
-            <h1>CGS Attendance</h1>
-            <p>Employee Management System</p>
-            <div className={styles.features}>
-              <div className={styles.feature}>✓ Real-time Attendance</div>
-              <div className={styles.feature}>✓ Location Tracking</div>
-              <div className={styles.feature}>✓ Leave Management</div>
-              <div className={styles.feature}>✓ Admin Dashboard</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Panel - Login Form */}
-        <div className={styles.rightPanel}>
-          <div className={styles.form}>
-            <h2>Welcome Back!</h2>
-            <p>Sign in to your account</p>
-
-            {error && (
-              <div className={styles.error}>
-                ❌ {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              {/* Role Selection */}
-              <div className={styles.roleSelector}>
-                <label>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="employee"
-                    checked={role === 'employee'}
-                    onChange={(e) => setRole(e.target.value)}
-                  />
-                  <span>👤 Employee</span>
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="role"
-                    value="admin"
-                    checked={role === 'admin'}
-                    onChange={(e) => setRole(e.target.value)}
-                  />
-                  <span>👨‍💼 Admin</span>
-                </label>
-              </div>
-
-              {/* Username */}
-              <div className={styles.formGroup}>
-                <label>Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              {/* Password */}
-              <div className={styles.formGroup}>
-                <label>Password</label>
-                <div className={styles.passwordInput}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className={styles.togglePassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={loading}
-                  >
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
+    <div className={styles.pageContainer}>
+      <div className={styles.container}>
+        {/* Employee Form */}
+        <div className={`${styles.formWrapper} ${isAdmin ? styles.hidden : ''}`}>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <h2>Employee</h2>
+            {error && <div className={styles.errorMessage}>{error}</div>}
+            <input
+              type="text"
+              placeholder="User name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
               <button
-                type="submit"
-                className={styles.submitBtn}
+                type="button"
+                className={styles.toggleEye}
+                onClick={togglePasswordVisibility}
                 disabled={loading}
               >
-                {loading ? 'Logging in...' : 'LOGIN'}
+                {showPassword ? '�' : '👁️'}
               </button>
-            </form>
-
-            <div className={styles.footer}>
-              <p>Secure Employee Attendance & Leave Management</p>
             </div>
-          </div>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
         </div>
+
+        {/* Admin Form */}
+        <div className={`${styles.formWrapper} ${!isAdmin ? styles.hidden : ''}`}>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <h2>Admin</h2>
+            {error && <div className={styles.errorMessage}>{error}</div>}
+            <input
+              type="text"
+              placeholder="User name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <div className={styles.passwordWrapper}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className={styles.toggleEye}
+                onClick={togglePasswordVisibility}
+                disabled={loading}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+        </div>
+
+        {/* Admin Toggle Button */}
+        <button
+          type="button"
+          className={styles.adminTab}
+          onClick={toggleRole}
+          disabled={loading}
+        >
+          {isAdmin ? 'Employee' : 'Admin'}
+        </button>
       </div>
     </div>
   );
